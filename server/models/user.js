@@ -5,8 +5,7 @@ const userSchema = new mongoose.Schema({
   hashed_password: { type: String, required: true },
   full_name: String,
   gender: String,
-  aadhar_card: { type: String, unique: true },
-  pan_card: { type: String, unique: true },
+  pan_card: { type: String, unique: true ,required: false},
 }, { timestamps: true });
 
 export default mongoose.model('User', userSchema);
