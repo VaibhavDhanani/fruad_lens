@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   full_name: String,
   gender: String,
   pan_card: { type: String, unique: true, required: false },
-  balance: { type: Number, default: 5000 } // 💰 Added balance field
+  balance: { type: Number, default: 50000 } // 💰 Added balance field
 }, { timestamps: true });
 
 export default mongoose.model('User', userSchema);

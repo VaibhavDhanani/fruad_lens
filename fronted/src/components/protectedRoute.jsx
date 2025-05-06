@@ -1,11 +1,21 @@
-// src/auth/PrivateRoute.jsx
-import { useAuth } from '../context/auth.conext';
-import { Navigate, Outlet } from 'react-router-dom';
+// components/PrivateLayout.jsx
+import { Outlet } from "react-router-dom";
+import { useAuth } from "../context/auth.context";
+import Navbar from "./navbar";
 
-const PrivateRoute = () => {
-  const { token } = useAuth();
+const PrivateLayout = () => {
+  const { user } = useAuth();
 
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  return (
+    <>
+      <Navbar />
+      <main><Outlet /></main>
+    </>
+  );
 };
 
-export default PrivateRoute;
+export default PrivateLayout;

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Clock, Calendar, RefreshCw } from 'lucide-react';
-import LoadingDots from './LoadingDots';
+import LoadingDots from '../pages/LoadingDots';
 
-const TransactionHistory = ({ transactions, loading }) => {
+const TransactionHistory = ({ transactions, loading,fetchDashboardData }) => {
   const [filter, setFilter] = useState('all');
   
   const filteredTransactions = transactions.filter(tx => {
@@ -144,7 +144,8 @@ const TransactionHistory = ({ transactions, loading }) => {
                 <p className="text-sm text-gray-600">
                   Showing {filteredTransactions.length} transactions
                 </p>
-                <button className="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                <button className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+                onClick={()=>fetchDashboardData()}>
                   <RefreshCw className="h-3 w-3 mr-1" />
                   Refresh
                 </button>

@@ -18,3 +18,18 @@ export const verifyToken = async (token) => {
   });
   return response.data.user;
 };
+
+
+export const getUserInfo = async (token) => {
+  try {
+    const res = await api.get(`/users/info`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { ok: true, data: res.data };
+  } catch (error) {
+    console.error("User fetch error:", error);
+    return { ok: false, data: error.response?.data || { message: "User fetch failed" } };
+  }
+};
