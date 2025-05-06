@@ -147,11 +147,15 @@ class User(Base):
     user_id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
-    full_name = Column(String,nullable=True)
-    gender = Column(String,nullable=True)
+    full_name = Column(String, nullable=True)
+    gender = Column(String, nullable=True)
     hashed_password = Column(String)
     aadhar_card = Column(String, unique=True)
     pan_card = Column(String, unique=True)
+
+    # One-to-many relationship: One User can have many Transactions
+    transactions = relationship("Transaction", back_populates="user")
+
 
 
 class Transaction(Base):
@@ -171,4 +175,5 @@ class Transaction(Base):
     beneficiary_long = Column(Float)
     ip_address = Column(String)
 
+    # Many-to-one relationship: Many Transactions belong to one User
     user = relationship("User", back_populates="transactions")
