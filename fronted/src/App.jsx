@@ -11,6 +11,7 @@ import SignupForm from './components/Signup';
 // import Home from './pages/Home';
 import HomePage from './pages/home.page';
 import Navbar from './components/navabar';
+import AdminDashboard from './pages/AdminDashBoard';
 function App() {
   return (
     <Router>
@@ -21,6 +22,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login1" element={<LoginForm />} />
           <Route path="/signup1" element={<SignupForm />} />
+          <Route path='/admin' element={<AdminDashboard/>}/>
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/predict" element={<FraudPredictionFrom/>}/>
