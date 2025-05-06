@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import NoResultFound
 from typing import List
+from app.api.dependencies import get_current_user
 
 from app.db.postgre import get_db
 from app.models.models import Transaction
@@ -14,7 +15,7 @@ from app.schemas.transaction import (
     TransactionUpdate,
 )
 
-router = APIRouter(prefix="/transactions", tags=["Transactions"])
+router = APIRouter(prefix="/transactions", tags=["Transactions"],dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=TransactionOut)

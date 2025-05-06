@@ -10,6 +10,7 @@ class User(Base):
     user_id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
+    gender = Column(String,nullable=True)
     full_name = Column(String)
     hashed_password = Column(String, nullable=False)
     age = Column(Integer)
@@ -17,9 +18,9 @@ class User(Base):
     pan_card = Column(String, unique=True, nullable=False)
     
     # Relationships
-    accounts = relationship("Account", back_populates="user")
-    devices = relationship("Device", back_populates="user")
-    transactions = relationship("Transaction", back_populates="user")
+    accounts = relationship("Account", back_populates="user",cascade="all, delete-orphan", passive_deletes=True)
+    devices = relationship("Device", back_populates="user",cascade="all, delete-orphan", passive_deletes=True)
+    transactions = relationship("Transaction", back_populates="user",cascade="all, delete-orphan", passive_deletes=True)
 
 
 class Account(Base):
@@ -31,8 +32,8 @@ class Account(Base):
     card_type = Column(String)
     
     # Relationships
-    user = relationship("User", back_populates="accounts")
-    transactions = relationship("Transaction", back_populates="account")
+    user = relationship("User", back_populates="accounts",cascade="all, delete-orphan", passive_deletes=True)
+    transactions = relationship("Transaction", back_populates="account",cascade="all, delete-orphan", passive_deletes=True)
 
 
 class Device(Base):
@@ -44,8 +45,8 @@ class Device(Base):
     is_new_device = Column(Boolean, default=False)
     
     # Relationships
-    user = relationship("User", back_populates="devices")
-    transactions = relationship("Transaction", back_populates="device")
+    user = relationship("User", back_populates="devices",cascade="all, delete-orphan", passive_deletes=True)
+    transactions = relationship("Transaction", back_populates="device",cascade="all, delete-orphan", passive_deletes=True)
 
 
 class Location(Base):
@@ -57,8 +58,8 @@ class Location(Base):
     longitude = Column(Float)
     
     # Relationships
-    origin_transactions = relationship("Transaction", foreign_keys="Transaction.origin_location_id", back_populates="origin_location")
-    beneficiary_transactions = relationship("Transaction", foreign_keys="Transaction.beneficiary_location_id", back_populates="beneficiary_location")
+    origin_transactions = relationship("Transaction", foreign_keys="Transaction.origin_location_id", back_populates="origin_location",cascade="all, delete-orphan", passive_deletes=True)
+    beneficiary_transactions = relationship("Transaction", foreign_keys="Transaction.beneficiary_location_id", back_populates="beneficiary_location",cascade="all, delete-orphan", passive_deletes=True)
 
 
 class Transaction(Base):
@@ -77,13 +78,13 @@ class Transaction(Base):
     beneficiary_location_id = Column(Integer, ForeignKey("locations.location_id"))
     
     # Relationships
-    user = relationship("User", back_populates="transactions")
-    account = relationship("Account", back_populates="transactions")
-    device = relationship("Device", back_populates="transactions")
-    origin_location = relationship("Location", foreign_keys=[origin_location_id], back_populates="origin_transactions")
-    beneficiary_location = relationship("Location", foreign_keys=[beneficiary_location_id], back_populates="beneficiary_transactions")
-    risk_assessment = relationship("RiskAssessment", back_populates="transaction", uselist=False)
-    fraud_details = relationship("FraudDetails", back_populates="transaction", uselist=False)
+    user = relationship("User", back_populates="transactions",cascade="all, delete-orphan", passive_deletes=True)
+    account = relationship("Account", back_populates="transactions",cascade="all, delete-orphan", passive_deletes=True)
+    device = relationship("Device", back_populates="transactions",cascade="all, delete-orphan", passive_deletes=True)
+    origin_location = relationship("Location", foreign_keys=[origin_location_id], back_populates="origin_transactions",cascade="all, delete-orphan", passive_deletes=True)
+    beneficiary_location = relationship("Location", foreign_keys=[beneficiary_location_id], back_populates="beneficiary_transactions",cascade="all, delete-orphan", passive_deletes=True)
+    risk_assessment = relationship("RiskAssessment", back_populates="transaction", uselist=False,cascade="all, delete-orphan", passive_deletes=True)
+    fraud_details = relationship("FraudDetails", back_populates="transaction", uselist=False,cascade="all, delete-orphan", passive_deletes=True)
 
 
 class RiskAssessment(Base):
@@ -98,7 +99,7 @@ class RiskAssessment(Base):
     multiple_account_login = Column(Boolean, default=False)
     
     # Relationships
-    transaction = relationship("Transaction", back_populates="risk_assessment")
+    transaction = relationship("Transaction", back_populates="risk_assessment",cascade="all, delete-orphan", passive_deletes=True)
 
 
 class TransactionMetrics(Base):
@@ -116,7 +117,7 @@ class TransactionMetrics(Base):
     transaction_distance = Column(Float)
     
     # Relationship
-    user = relationship("User")
+    user = relationship("User",cascade="all, delete-orphan", passive_deletes=True)
 
 
 class FraudDetails(Base):
@@ -129,4 +130,4 @@ class FraudDetails(Base):
     previous_fraudulent_activity = Column(Boolean, default=False)
     
     # Relationship
-    transaction = relationship("Transaction", back_populates="fraud_details")
+    transaction = relationship("Transaction", back_populates="fraud_details",cascade="all, delete-orphan", passive_deletes=True)

@@ -4,8 +4,9 @@ from sqlalchemy.future import select
 from app.models.models import Device
 from app.schemas.device import DeviceCreate, DeviceUpdate, DeviceOut
 from app.db.postgre import get_db
+from app.api.dependencies import get_current_user
 
-router = APIRouter(prefix="/devices", tags=["Devices"])
+router = APIRouter(prefix="/devices", tags=["Devices"],dependencies=[Depends(get_current_user)])
 
 # Get all devices
 @router.get("/", response_model=list[DeviceOut])

@@ -23,6 +23,7 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
         username=user.username,
         email=user.email,
         full_name=user.full_name,
+        gender=user.gender,
         age=user.age,
         aadhar_card=user.aadhar_card,
         pan_card=user.pan_card,
