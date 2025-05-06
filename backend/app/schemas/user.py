@@ -33,7 +33,7 @@ class UserOut(UserBase):
 
 
 class UserLogin(BaseModel):
-    email: str
+    username: str
     password: str
 
 

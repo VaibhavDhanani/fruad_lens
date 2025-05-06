@@ -1,7 +1,7 @@
 // src/auth/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import {loginUser,registerUser,verifyToken} from '../services/auth.service'
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -9,13 +9,14 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const navigate = useNavigate();
 
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     try {
       // This will be implemented in authService.js
-      const response = await loginUser(email, password);
+      const response = await loginUser(username, password);
       setUser(response.user);
-      setToken(response.token);
-      localStorage.setItem('token', response.token);
+      setToken(response.access_token);
+      localStorage.setItem('token', response.access_token);
+      // console.log(response);
       navigate('/dashboard'); // Redirect after login
     } catch (error) {
       console.error('Login failed:', error);
@@ -44,21 +45,21 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  useEffect(() => {
-    // Check if user is authenticated when app loads
-    const verifyAuth = async () => {
-      if (token) {
-        try {
-          // This will be implemented in authService.js
-          const userData = await verifyToken(token);
-          setUser(userData);
-        } catch (error) {
-          logout();
-        }
-      }
-    };
-    verifyAuth();
-  }, [token]);
+  // useEffect(() => {
+  //   // Check if user is authenticated when app loads
+  //   const verifyAuth = async () => {
+  //     if (token) {
+  //       try {
+  //         // This will be implemented in authService.js
+  //         const userData = await verifyToken(token);
+  //         setUser(userData);
+  //       } catch (error) {
+  //         logout();
+  //       }
+  //     }
+  //   };
+  //   verifyAuth();
+  // }, [token]);
 
   return (
     <AuthContext.Provider value={{ user, token, login, signup, logout }}>

@@ -1,12 +1,12 @@
 import api from "../utils/db"; // ✅ correctly import the Axios instance
 
-export const loginUser = async (email, password) => {
-  const response = await api.post('/login', { email, password });
+export const loginUser = async (username, password) => {
+  const response = await api.post('/login', { username, password });
   return response.data;
 };
 
-export const registerUser = async (name, email, password) => {
-  const response = await api.post('/register', { name, email, password });
+export const registerUser = async (name, username, password) => {
+  const response = await api.post('/signup', { name, username, password });
   return response.data;
 };
 

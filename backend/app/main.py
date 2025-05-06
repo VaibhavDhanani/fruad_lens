@@ -2,6 +2,8 @@ from fastapi import FastAPI, Security
 from app.api.dependencies import get_current_user
 from app.models.models import User
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware  # ✅ Add this
+
 from app.api.routes import (
     user_routes,
     account_routes,
@@ -16,6 +18,17 @@ from app.api.routes import (
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:5173",  # Frontend (e.g., Vite, React, etc.)
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(user_routes.router)
 app.include_router(account_routes.router)
 app.include_router(device_routes.router)
