@@ -14,8 +14,8 @@ export const AuthProvider = ({ children }) => {
       // This will be implemented in authService.js
       const response = await loginUser(username, password);
       setUser(response.user);
-      setToken(response.access_token);
-      localStorage.setItem('token', response.access_token);
+      setToken(response.token);
+      localStorage.setItem('token', response.token);
       // console.log(response);
       navigate('/dashboard'); // Redirect after login
     } catch (error) {
@@ -24,10 +24,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (name, email, password) => {
+  const signup = async (name, username,email, password) => {
     try {
       // This will be implemented in authService.js
-      const response = await registerUser(name, email, password);
+      const response = await registerUser(name, username, email, password);
       setUser(response.user);
       setToken(response.token);
       localStorage.setItem('token', response.token);
