@@ -1,6 +1,6 @@
 // src/pages/Login.jsx
 import { useState } from 'react';
-import { useAuth } from '../context/auth.conext';
+import { useAuth } from '../context/auth.context';
 import { Link } from 'react-router-dom';
 
 const Login = () => {

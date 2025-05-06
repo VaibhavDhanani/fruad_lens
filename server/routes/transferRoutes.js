@@ -2,6 +2,7 @@ import express from 'express';
 import { transferMoney, getUserTransactions } from '../controllers/TransferController.js';
 import Transaction from '../models/transaction.js';
 const router = express.Router();
+import authMiddleware from '../middlewares/authMiddleware.js'
 router.get('/all', async (req, res) => {
     try {
       const transactions = await Transaction.find().populate('user counterparty');
@@ -29,7 +30,7 @@ router.get('/all', async (req, res) => {
       res.status(500).send('Server error');
     }
   });
-router.post('/transfer/', transferMoney);
-router.get('/:userId', getUserTransactions); 
+router.post('/transfer',authMiddleware, transferMoney);
+router.get('/',authMiddleware, getUserTransactions); 
 
 export default router;

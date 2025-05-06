@@ -1,6 +1,6 @@
 // src/pages/Signup.jsx
 import { useState } from 'react';
-import { useAuth } from '../context/auth.conext';
+import { useAuth } from '../context/auth.context';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Signup = () => {

@@ -1,15 +1,16 @@
-import { useAuth } from '../context/auth.conext';
+import { useAuth } from '../context/auth.context';
 import { useState, useEffect } from 'react';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
-import DashboardHeader from './DashboardHeader';
 import UserBalanceCard from './UserBalanceCard';
-import TransactionForm from './TransactionForm';
-import TransactionHistory from './TransactionHistory';
+import TransactionForm from '../../forms/transactionForm';
+import TransactionHistory from '../components/TransactionHistory';
 import SecurityInfo from './SecurityInfo';
 import { ArrowDownCircle, ArrowUpCircle, AlertTriangle, Clock } from 'lucide-react';
+import { transferAmount ,getUserTransactions ,getTransactionSummary} from '../services/transaction.service'; // adjust path as needed
+import { getUserInfo } from '../services/auth.service';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user,token } = useAuth();
   const [balance, setBalance] = useState(null);
   const [history, setHistory] = useState([]);
   const [deviceId, setDeviceId] = useState('');
@@ -22,21 +23,19 @@ const Dashboard = () => {
 
   // Fetch security information
   useEffect(() => {
-    const fetchSummary = async () => {
-      try {
-        const username = (localStorage.user)  ;
-        if (!username) return;
-  
-        const url = `http://localhost:5000/api/users/user-summary/${username}`;
-        console.log("Fetching from:", url);
-        
-        const res = await fetch(url);
-        const data = await res.json();
-        setSummary({ income: data.income, expense: data.expense });
-      } catch (err) {
-        console.error('Failed to fetch transaction summary:', err);
-      }
-    };
+    
+  const fetchSummary = async () => {
+    try {
+      setLoading(true);
+      const data = await getTransactionSummary(token);
+      setSummary({ income: data.data.income, expense: data.data.expense });
+    } catch (err) {
+      console.error('Failed to fetch transaction summary:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   
     fetchSummary();
   }, []);
@@ -82,30 +81,32 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/users/${localStorage.user}`);
-      const data = await res.json();
-      setBalance(data.balance);
-
-      const txRes = await fetch(`http://localhost:5000/api/transactions/${localStorage.user}`);
-      const txData = await txRes.json();
-      
-      // Enhance transaction data with status and icon info
-      const enhancedTxData = txData.map(tx => {
-        const isIncoming = tx.transaction_type === 'CREDIT';
-        const status = getTransactionStatus(tx);
-        
-        return {
-          ...tx,
-          isIncoming,
-          status,
-          statusIcon: getStatusIcon(status),
-          formattedDate: formatDate(tx.createdAt),
-          formattedTime: formatTime(tx.createdAt),
-          icon: isIncoming ? <ArrowDownCircle className="text-emerald-500" /> : <ArrowUpCircle className="text-blue-500" />
-        };
-      });
-      
-      setHistory(enhancedTxData);
+      const userRes = await getUserInfo(token);
+      if (userRes.ok) {
+        setBalance(userRes.data.balance);
+      }
+  
+      const txRes = await getUserTransactions(token);
+      if (txRes.ok) {
+        const enhancedTxData = txRes.data.map(tx => {
+          const isIncoming = tx.receiver._id === user._id;  // If user is the receiver, it's an incoming transaction
+          const status = getTransactionStatus(tx);
+          
+          return {
+            ...tx,
+            isIncoming,
+            status,
+            statusIcon: getStatusIcon(status),
+            formattedDate: formatDate(tx.createdAt),
+            formattedTime: formatTime(tx.createdAt),
+            icon: isIncoming
+              ? <ArrowDownCircle className="text-emerald-500" />
+              : <ArrowUpCircle className="text-blue-500" />
+          };
+        });
+  
+        setHistory(enhancedTxData);
+      }
     } catch (err) {
       console.error('Failed to fetch dashboard data', err);
       setMessage({
@@ -116,7 +117,7 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-
+  
   const getTransactionStatus = (tx) => {
     // Mock function to determine transaction status
     // In a real app, this would come from the backend
@@ -159,14 +160,15 @@ const Dashboard = () => {
     }
   }, [user]);
 
+
   const handleTransfer = async (formData) => {
     setIsProcessing(true);
     setMessage({ text: '', type: '' });
-    
+  
     try {
       const payload = {
         ...formData,
-        senderId: localStorage.user,
+        senderId: user._id,
         device_id: deviceId || 'unknown',
         ip_address: ipAddress || 'unknown',
         sender_lat: location.lat,
@@ -174,15 +176,10 @@ const Dashboard = () => {
         beneficiary_lat: 0,
         beneficiary_long: 0
       };
-
-      const res = await fetch('http://localhost:5000/api/transactions/transfer/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-      if (res.ok) {
+  
+      const { ok, data } = await transferAmount(payload,token);
+  
+      if (ok) {
         setMessage({
           text: 'Transaction successful! 🎉',
           type: 'success'
@@ -197,7 +194,6 @@ const Dashboard = () => {
         return false;
       }
     } catch (error) {
-      console.error('Transaction error:', error);
       setMessage({
         text: 'Error occurred during transaction',
         type: 'error'
@@ -207,17 +203,17 @@ const Dashboard = () => {
       setIsProcessing(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardHeader username={localStorage.user} onLogout={logout} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column */}
           <div className="lg:col-span-2 space-y-6">
             <UserBalanceCard
-              username={localStorage.user}
+              username={user.username}
               balance={balance}
               loading={loading}
               income={summary.income}
@@ -246,6 +242,7 @@ const Dashboard = () => {
           <TransactionHistory 
             transactions={history}
             loading={loading}
+            fetchDashboardData={fetchDashboardData}
           />
         </div>
       </div>
