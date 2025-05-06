@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
       setUser(response.user);
       setToken(response.token);
       localStorage.setItem('token', response.token);
+      localStorage.setItem('user',username)
       // console.log(response);
       navigate('/dashboard'); // Redirect after login
     } catch (error) {
@@ -42,6 +43,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('user')
     navigate('/login');
   };
 
