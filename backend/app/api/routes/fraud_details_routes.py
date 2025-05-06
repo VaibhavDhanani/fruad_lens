@@ -5,9 +5,10 @@ from typing import List
 
 from app.db.postgre import get_db
 from app.models.models import FraudDetails
+from app.api.dependencies import get_current_user
 from app.schemas.fraud_details import FraudDetailsOut, FraudDetailsCreate, FraudDetailsUpdate
 
-router = APIRouter(prefix="/fraud-details", tags=["Fraud Details"])
+router = APIRouter(prefix="/fraud-details", tags=["Fraud Details"],dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=FraudDetailsOut)

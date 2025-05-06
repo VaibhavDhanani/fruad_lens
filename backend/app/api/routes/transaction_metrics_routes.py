@@ -5,10 +5,11 @@ from sqlalchemy.future import select
 from typing import List
 
 from app.db.postgre import get_db
+from app.api.dependencies import get_current_user
 from app.models.models import TransactionMetrics
 from app.schemas.transaction_metrics import TransactionMetricsBase,TransactionMetricsCreate,TransactionMetricsUpdate,TransactionMetricsOut
 
-router = APIRouter(prefix="/transaction-metrics", tags=["Transaction Metrics"])
+router = APIRouter(prefix="/transaction-metrics", tags=["Transaction Metrics"],dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=TransactionMetricsOut)

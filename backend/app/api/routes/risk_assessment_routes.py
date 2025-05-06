@@ -11,8 +11,9 @@ from app.schemas.risk_assessment import (
     RiskAssessmentCreate,
     RiskAssessmentUpdate,
 )
+from app.api.dependencies import get_current_user
 
-router = APIRouter(prefix="/risk-assessments", tags=["Risk Assessment"])
+router = APIRouter(prefix="/risk-assessments", tags=["Risk Assessment"],dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=RiskAssessmentOut)

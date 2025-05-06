@@ -4,8 +4,9 @@ from sqlalchemy.future import select
 from app.models.models import Location
 from app.schemas.location import LocationCreate, LocationUpdate, LocationOut
 from app.db.postgre import get_db
+from app.api.dependencies import get_current_user
 
-router = APIRouter(prefix="/locations", tags=["Locations"])
+router = APIRouter(prefix="/locations", tags=["Locations"],dependencies=[Depends(get_current_user)])
 
 # Get all locations
 @router.get("/", response_model=list[LocationOut])
