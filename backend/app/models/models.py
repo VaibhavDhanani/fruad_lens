@@ -15,8 +15,8 @@ class User(Base):
     age = Column(Integer)
     aadhar_card = Column(String, unique=True)
     pan_card = Column(String, unique=True)
-    last_ip = Column(String)         # Optional: You can add length like String(45)
-    current_ip = Column(String)
+    last_ip = Column(String,nullable=True)         # Optional: You can add length like String(45)
+    current_ip = Column(String,nullable=True)
     
     # Account-related fields
     account_balance = Column(Float, nullable=False, default=0.0)
@@ -71,7 +71,9 @@ class Transaction(Base):
     transaction_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
     # # account_id = Column(Integer, ForeignKey("accounts.account_id"), nullable=False)
-    device_id = Column(String, ForeignKey("devices.device_id"))
+    # device_id = Column(String, ForeignKey("devices.device_id"))
+    device_id = Column(String, nullable=True)
+    ip_addr = Column(String, nullable=True)
     transaction_amount = Column(Float, nullable=False)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     transaction_hour = Column(Integer)
@@ -83,7 +85,7 @@ class Transaction(Base):
     # Relationships
     user = relationship("User", back_populates="transactions",cascade="all, delete-orphan", passive_deletes=True)
     account = relationship("Account", back_populates="transactions",cascade="all, delete-orphan", passive_deletes=True)
-    device = relationship("Device", back_populates="transactions",cascade="all, delete-orphan", passive_deletes=True)
+    # device = relationship("Device", back_populates="transactions",cascade="all, delete-orphan", passive_deletes=True)
     origin_location = relationship("Location", foreign_keys=[origin_location_id], back_populates="origin_transactions",cascade="all, delete-orphan", passive_deletes=True)
     beneficiary_location = relationship("Location", foreign_keys=[beneficiary_location_id], back_populates="beneficiary_transactions",cascade="all, delete-orphan", passive_deletes=True)
     risk_assessment = relationship("RiskAssessment", back_populates="transaction", uselist=False,cascade="all, delete-orphan", passive_deletes=True)

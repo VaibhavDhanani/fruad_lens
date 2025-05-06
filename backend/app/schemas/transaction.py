@@ -13,6 +13,7 @@ class TransactionBase(BaseModel):
     beneficiary_account_number: str
     origin_location_id: int
     beneficiary_location_id: int
+    device_id: Optional[str]
 
 
 class TransactionCreate(TransactionBase):
@@ -24,6 +25,7 @@ class TransactionUpdate(BaseModel):
     transaction_hour: Optional[int]
     is_weekend: Optional[bool]
     beneficiary_account_number: Optional[str]
+    device_id: Optional[str]
     origin_location_id: Optional[int]
     beneficiary_location_id: Optional[int]
 
