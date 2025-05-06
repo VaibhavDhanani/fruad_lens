@@ -1,5 +1,7 @@
-import { useAuth } from '../context/auth.conext';  // Adjust the path accordingly
-import { useState , useEffect } from 'react';
+import { useAuth } from '../context/auth.conext';
+import { useState, useEffect } from 'react';
+import FingerprintJS from '@fingerprintjs/fingerprintjs'; // ✅ ADDED
+
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const [balance, setBalance] = useState(null);
@@ -9,8 +11,53 @@ const Dashboard = () => {
     amount: '',
     description: ''
   });
+
+  // ✅ ADDED STATE for device info
+  const [deviceId, setDeviceId] = useState('');
+  const [ipAddress, setIpAddress] = useState('');
+  const [location, setLocation] = useState({ lat: 0, long: 0 });
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  // ✅ Fetch FingerprintJS ID
+  useEffect(() => {
+    const loadFingerprint = async () => {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      setDeviceId(result.visitorId);
+    };
+
+    const fetchIP = async () => {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        setIpAddress(data.ip);
+      } catch (error) {
+        console.error('IP fetch error:', error);
+      }
+    };
+
+    const fetchLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setLocation({
+              lat: pos.coords.latitude,
+              long: pos.coords.longitude
+            });
+          },
+          (err) => {
+            console.error('Geolocation error:', err);
+          }
+        );
+      }
+    };
+
+    loadFingerprint();
+    fetchIP();
+    fetchLocation();
+  }, []);
 
   const fetchDashboardData = async () => {
     try {
@@ -35,6 +82,7 @@ const Dashboard = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
   const handleTransfer = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -43,25 +91,23 @@ const Dashboard = () => {
       const payload = {
         ...form,
         senderId: localStorage.user,
-        device_id: 'web-browser',
-        ip_address: '127.0.0.1',
-        sender_lat: 0,
-        sender_long: 0,
-        beneficiary_lat: 0,
+        device_id: deviceId || 'unknown',
+        ip_address: ipAddress || 'unknown',
+        sender_lat: location.lat,
+        sender_long: location.long,
+        beneficiary_lat: 0, // Can be updated later
         beneficiary_long: 0
       };
-  
-      console.log('Sending payload:', payload); // 👈 log this
-  
+
+      console.log('Sending payload:', payload); // ✅ debug log
+
       const res = await fetch('http://localhost:5000/api/transactions/transfer/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-  
+
       const data = await res.json();
-      console.log('Received response:', data); // 👈 log response
-  
       if (res.ok) {
         setMessage('Transaction successful!');
         setForm({ receiverUsername: '', amount: '', description: '' });
@@ -75,6 +121,8 @@ const Dashboard = () => {
     }
     setLoading(false);
   };
+
+
   
   return (
     <div className="min-h-screen bg-gray-100">

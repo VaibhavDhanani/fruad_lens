@@ -21,7 +21,7 @@ export const transferMoney = async (req, res) => {
     }
 
     const [sender, receiver] = await Promise.all([
-      User.findOne({username : senderId}),
+      User.findOne({ username: senderId }),
       User.findOne({ username: receiverUsername })
     ]);
 
@@ -37,6 +37,7 @@ export const transferMoney = async (req, res) => {
       return res.status(400).json({ message: "Insufficient balance" });
     }
 
+    // Process transaction
     sender.balance -= amt;
     receiver.balance += amt;
 
@@ -89,7 +90,6 @@ export const transferMoney = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 export const getUserTransactions = async (req, res) => {
   try {
