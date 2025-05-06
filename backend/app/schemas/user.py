@@ -8,6 +8,7 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     age: Optional[int] = None
     aadhar_card: str
+    gender: str
     pan_card: str
 
 
@@ -22,6 +23,7 @@ class UserUpdate(BaseModel):
     age: Optional[int]
     aadhar_card: Optional[str]
     pan_card: Optional[str]
+    gender: Optional[str]
 
 
 class UserOut(UserBase):

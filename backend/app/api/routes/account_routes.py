@@ -2,10 +2,11 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.models import Account
+from app.api.dependencies import get_current_user
 from app.schemas.account import AccountCreate, AccountUpdate, AccountOut
 from app.db.postgre import get_db
 
-router = APIRouter(prefix="/accounts", tags=["Accounts"])
+router = APIRouter(prefix="/accounts", tags=["Accounts"],dependencies=[Depends(get_current_user)])
 
 # Get All Accounts
 @router.get("/", response_model=list[AccountOut])

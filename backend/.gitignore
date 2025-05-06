@@ -37,7 +37,7 @@ coverage.xml
 *.log
 
 # SQLAlchemy migration files
-alembic/versions/
+# alembic/versions/
 
 # Docker
 *.pid
