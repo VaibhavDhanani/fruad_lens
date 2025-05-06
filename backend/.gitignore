@@ -36,6 +36,8 @@ coverage.xml
 # Logs
 *.log
 
+run/
+
 # SQLAlchemy migration files
 # alembic/versions/
 

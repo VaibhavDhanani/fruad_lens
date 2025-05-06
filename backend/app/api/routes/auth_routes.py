@@ -32,7 +32,7 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=TokenData)
 async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == user.email))
+    result = await db.execute(select(User).where(User.username == user.username))
     db_user = result.scalar_one_or_none()
 
     if not db_user or not pwd_context.verify(user.password, db_user.hashed_password):

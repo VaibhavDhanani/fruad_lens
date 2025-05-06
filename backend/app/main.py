@@ -13,9 +13,14 @@ from app.api.routes import (
 )
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",  # Frontend (e.g., Vite, React, etc.)
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with ["http://localhost:5173"] in production
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
