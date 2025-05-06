@@ -9,13 +9,14 @@ import FraudPredictionFrom from './components/FraudPredictionForm';
 import LoginForm from './components/Login';
 import SignupForm from './components/Signup';
 // import Home from './pages/Home';
-import './App.css'
+import HomePage from './pages/home.page';
+import Navbar from './components/navabar';
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Routes>
-          {/* <Route path="/" element={<Home />} /> */}
+          <Route path="/" element={<HomePage />  } />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login1" element={<LoginForm />} />

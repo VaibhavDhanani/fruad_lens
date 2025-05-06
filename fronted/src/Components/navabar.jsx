@@ -1,0 +1,41 @@
+import React, { useEffect } from "react"
+import { Link } from "react-router-dom"
+import { Shield, LogOut } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/context/auth.conext" // Import useAuth from context
+
+const Navbar = () => {
+  const { user, logout } = useAuth() // Use context to get user and logout function
+
+  return (
+    <header className="border-b">
+      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        <div className="flex items-center gap-2">
+          <Shield className="h-6 w-6 text-primary" />
+          <span className="text-xl font-bold">SecureWallet</span>
+        </div>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <>
+              <span className="text-white">Welcome, {user.name}</span>
+              <Button onClick={logout} variant="ghost">
+                <LogOut className="h-5 w-5" /> Log Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost">Log In</Button>
+              </Link>
+              <Link to="/signup">
+                <Button>Sign Up</Button>
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    </header>
+  )
+}
+
+export default Navbar
