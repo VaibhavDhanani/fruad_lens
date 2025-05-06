@@ -10,17 +10,20 @@ class User(Base):
     user_id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    gender = Column(String,nullable=True)
     full_name = Column(String)
     hashed_password = Column(String, nullable=False)
     age = Column(Integer)
-    aadhar_card = Column(String, unique=True, nullable=False)
-    pan_card = Column(String, unique=True, nullable=False)
+    aadhar_card = Column(String, unique=True)
+    pan_card = Column(String, unique=True)
+    last_ip = Column(String)         # Optional: You can add length like String(45)
+    current_ip = Column(String)
+    
+    # Account-related fields
+    account_balance = Column(Float, nullable=False, default=0.0)
     
     # Relationships
-    accounts = relationship("Account", back_populates="user",cascade="all, delete-orphan", passive_deletes=True)
-    devices = relationship("Device", back_populates="user",cascade="all, delete-orphan", passive_deletes=True)
-    transactions = relationship("Transaction", back_populates="user",cascade="all, delete-orphan", passive_deletes=True)
+    devices = relationship("Device", back_populates="user")
+    transactions = relationship("Transaction", back_populates="user")
 
 
 class Account(Base):
@@ -28,7 +31,7 @@ class Account(Base):
     
     account_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    account_balance = Column(Float, nullable=False)
+    account__balance = Column(Float, nullable=False)
     card_type = Column(String)
     
     # Relationships
@@ -67,7 +70,7 @@ class Transaction(Base):
     
     transaction_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    account_id = Column(Integer, ForeignKey("accounts.account_id"), nullable=False)
+    # # account_id = Column(Integer, ForeignKey("accounts.account_id"), nullable=False)
     device_id = Column(String, ForeignKey("devices.device_id"))
     transaction_amount = Column(Float, nullable=False)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())

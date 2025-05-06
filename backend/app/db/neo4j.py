@@ -13,9 +13,10 @@ class Neo4jConnection:
     def close(self):
         self._driver.close()
 
-    def query(self, query, parameters=None):
-        with self._driver.session() as session:
-            return session.run(query, parameters or {})
+    def query(self, query, parameters=None, db=None):
+        with self.driver.session(database=db) if db else self._driver.session() as session:
+            result = session.run(query, parameters or {})
+            return [record for record in result]  
             
 # Create a global instance
 neo4j_conn = Neo4jConnection(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
