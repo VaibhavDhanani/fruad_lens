@@ -1,0 +1,17 @@
+fastapi[all]
+uvicorn
+pydantic
+sqlalchemy[asyncio]
+psycopg2-binary
+motor
+redis
+neo4j
+scikit-learn
+numpy
+pandas
+joblib
+python-dotenv
+loguru
+asyncpg
+alembic
+passlib[bcrypt]
