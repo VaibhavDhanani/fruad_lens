@@ -6,7 +6,7 @@ import User from '../models/user.js';
 export const registerUser = async (req, res) => {
   try {
     const { username, full_name, password } = req.body;
-
+    console.log(req.body)
     const existingUser = await User.findOne({ username });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
@@ -16,6 +16,7 @@ export const registerUser = async (req, res) => {
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
+    console.error("Register Error:", err); // See full error object
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
@@ -50,5 +51,14 @@ export const getAllUsers = async (req, res) => {
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+export const getUserInfo = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.id }).select('full_name username balance');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
   }
 };
