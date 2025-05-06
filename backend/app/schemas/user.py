@@ -6,10 +6,6 @@ class UserBase(BaseModel):
     username: str
     email: EmailStr
     full_name: Optional[str] = None
-    age: Optional[int] = None
-    aadhar_card: str
-    gender: str
-    pan_card: str
 
 
 class UserCreate(UserBase):

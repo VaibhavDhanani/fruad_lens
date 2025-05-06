@@ -22,11 +22,6 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
     new_user = User(
         username=user.username,
         email=user.email,
-        full_name=user.full_name,
-        gender=user.gender,
-        age=user.age,
-        aadhar_card=user.aadhar_card,
-        pan_card=user.pan_card,
         hashed_password=hashed_pwd,
     )
     db.add(new_user)
