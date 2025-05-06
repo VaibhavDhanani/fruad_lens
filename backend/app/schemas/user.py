@@ -6,12 +6,6 @@ class UserBase(BaseModel):
     username: str
     email: EmailStr
     full_name: Optional[str] = None
-    age: Optional[int] = None
-    aadhar_card: str
-    gender: str
-    pan_card: str
-    last_ip = Optional[str]
-    current_ip = Optional[str]
 
 
 class UserCreate(UserBase):
@@ -26,8 +20,6 @@ class UserUpdate(BaseModel):
     aadhar_card: Optional[str]
     pan_card: Optional[str]
     gender: Optional[str]
-    last_ip = Optional[str]
-    current_ip = Optional[str]
 
 
 class UserOut(UserBase):

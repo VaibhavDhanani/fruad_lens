@@ -3,18 +3,11 @@ from app.api.dependencies import get_current_user
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.models.models import User
-import uvicorn
 from app.db.neo4j import neo4j_conn
 
 from app.api.routes import (
     user_routes,
-    account_routes,
-    device_routes,
-    location_routes,
     transaction_routes,
-    risk_assessment_routes,
-    transaction_metrics_routes,
-    fraud_details_routes,
     auth_routes,
     model_routes
 )
@@ -27,16 +20,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(user_routes.router)
-app.include_router(account_routes.router)
-app.include_router(device_routes.router)
-app.include_router(location_routes.router)
-app.include_router(transaction_routes.router)
-app.include_router(risk_assessment_routes.router)
-app.include_router(fraud_details_routes.router)
-app.include_router(transaction_metrics_routes.router)
+# app.include_router(transaction_metrics_routes.router)
+# app.include_router(account_routes.router)
+# app.include_router(device_routes.router)
+# app.include_router(location_routes.router)
+# app.include_router(risk_assessment_routes.router)
+# app.include_router(fraud_details_routes.router)
 app.include_router(auth_routes.router)
+app.include_router(user_routes.router)
 app.include_router(model_routes.router)
+app.include_router(transaction_routes.router)
 
 
 @app.get("/", tags=["Status"])
