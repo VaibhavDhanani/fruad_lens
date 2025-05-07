@@ -11,9 +11,12 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
 
     const [errors, setErrors] = useState({});
     const [showMessage, setShowMessage] = useState(true);
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const [pendingForm, setPendingForm] = useState(null);
-    
+    // const [showConfirmation, setShowConfirmation] = useState(false);
+    // const [pendingForm, setPendingForm] = useState(null);
+    const [transactionId, setTransactionId] = useState(null);
+const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+const [password, setPassword] = useState('');
+
     const validateForm = () => {
       const newErrors = {};
       if (!form.receiverUsername.trim()) {
@@ -50,30 +53,77 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
     const handleSubmit = async (e) => {
       e.preventDefault();
       setShowMessage(false);
-
+    
       if (!validateForm()) return;
-
-      setPendingForm(form);
-      setShowConfirmation(true);
-    };
-    const handleConfirmSubmit = async () => {
-      setShowConfirmation(false);
-      const success = await onSubmit(pendingForm);
-      if (success) {
+    
+      // Step 1: Create the transaction
+      const createdTransactionId = await onSubmit(form); // should return ID
+      if (createdTransactionId) {
+        setTransactionId(createdTransactionId);
+        setShowPasswordPrompt(true);
         setForm({ receiverUsername: '', amount: '', description: '' });
+      } else {
+        setShowMessage(true); // show error from message
       }
-      setShowMessage(true);
     };
+    
+    // const handleConfirmSubmit = async () => {
+    //   setShowConfirmation(false);
+    //   const success = await onSubmit(pendingForm);
+    //   if (success) {
+    //     setForm({ receiverUsername: '', amount: '', description: '' });
+    //   }
+    //   setShowMessage(true);
+    // };
+    const handlePasswordSubmit = async () => {
+      if (!password.trim()) return;
+    
+      const success = await authorizeTransaction({ transactionId, password });
+      setShowPasswordPrompt(false);
+      setPassword('');
+      setTransactionId(null);
+    
+      if (!success) {
+        // Handle failure: maybe show a toast or error
+        setShowMessage(true);
+      }
+    };
+    
     return (
       <>
-        {showConfirmation && (
-          <ConfirmationDialog
-            title="Confirm Transaction"
-            message={`Are you sure you want to send ₹${pendingForm?.amount} to ${pendingForm?.receiverUsername}?`}
-            onConfirm={handleConfirmSubmit}
-            onCancel={() => setShowConfirmation(false)}
-          />
-        )}      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+{showPasswordPrompt && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-sm space-y-4">
+      <h2 className="text-lg font-semibold text-gray-800">Enter Password</h2>
+      <input
+        type="password"
+        placeholder="Transaction password"
+        className="w-full px-4 py-2 border border-gray-300 rounded"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <div className="flex justify-end space-x-2">
+        <button
+          onClick={() => {
+            setShowPasswordPrompt(false);
+            setPassword('');
+            setTransactionId(null);
+          }}
+          className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handlePasswordSubmit}
+          className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded"
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <div className="border-b border-gray-100 px-6 py-4">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center">
             <Send className="h-5 w-5 text-blue-600 mr-2" />
