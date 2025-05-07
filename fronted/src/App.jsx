@@ -1,42 +1,42 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/auth.context';
-import PrivateLayout from './components/protectedRoute';
-import Login from './pages/login.page';
-import Signup from './pages/signup.page';
-import Dashboard from './pages/dashboard.page';
-import FraudPredictionFrom from './components/FraudPredictionForm';
-import LoginForm from './components/Login';
-import SignupForm from './components/Signup';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/Auth.context";
+import PrivateLayout from "./components/ProtectedRoute";
+import Login from "./pages/Login.page";
+import Signup from "./pages/Signup.page";
+import Dashboard from "./pages/Dashboard.page";
+import FraudPredictionFrom from "./components/FraudPredictionForm";
+import LoginForm from "./components/Login";
+import SignupForm from "./components/Signup";
 // import Home from './pages/Home';
-import HomePage from './pages/home.page';
-import AdminDashboard from './pages/AdminDashBoard';
-import Layout from './components/layout';
+import HomePage from "./pages/Home.page";
+import AdminDashboard from "./pages/AdminDashBoard";
+import Layout from "./components/Layout";
 function App() {
   return (
     <Router>
-    <AuthProvider>
-      <Routes>
-        {/* Public Layout */}
+      <AuthProvider>
+        <Routes>
+          {/* Public Layout */}
           <Route path="/login1" element={<LoginForm />} />
           <Route path="/signup1" element={<SignupForm />} />
-        <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Route>
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Route>
 
-        {/* Private Layout */}
-        <Route element={<PrivateLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/predict" element={<FraudPredictionFrom />} />
-        </Route>
+          {/* Private Layout */}
+          <Route element={<PrivateLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/predict" element={<FraudPredictionFrom />} />
+          </Route>
 
-        {/* Admin route */}
-        <Route path="/admin" element={<AdminDashboard />} />
-      </Routes>
-    </AuthProvider>
-  </Router>
+          {/* Admin route */}
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 

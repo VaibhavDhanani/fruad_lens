@@ -1,6 +1,6 @@
   import { useState } from 'react';
   import { Send, User, DollarSign, MessageSquare, X } from 'lucide-react';
-  import LoadingDots from '../src/pages/LoadingDots';
+  import LoadingDots from '../pages/LoadingDots';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
   const TransactionForm = ({ onSubmit, isProcessing, message }) => {
     const [form, setForm] = useState({

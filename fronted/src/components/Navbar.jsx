@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/auth.context"; // Import useAuth from context
+import { useAuth } from "@/context/Auth.context";
 
 const Navbar = () => {
   const { user, logout } = useAuth(); // Use context to get user and logout function
@@ -10,12 +10,12 @@ const Navbar = () => {
   return (
     <header className="border-b">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-          <Link to="/">
-        <div className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">SecureWallet</span>
-        </div>
-          </Link>
+        <Link to="/">
+          <div className="flex items-center gap-2">
+            <Shield className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold">SecureWallet</span>
+          </div>
+        </Link>
         <div className="flex items-center gap-4">
           {user ? (
             <>

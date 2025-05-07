@@ -38,7 +38,10 @@ const FraudPredictionForm = () => {
     );
 
     try {
-      const res = await axios.post("http://127.0.0.1:8000/model/predict", formattedData);
+      const res = await axios.post(
+        "http://127.0.0.1:8000/model/predict",
+        formattedData
+      );
       setPrediction(res.data.prediction);
       setProbability(res.data.probability);
     } catch (err) {
@@ -54,7 +57,10 @@ const FraudPredictionForm = () => {
           <div className="form-group" key={field}>
             <label>
               {field.replaceAll("_", " ")}
-              <span className="example-text"> (e.g. {example}, Range: {range})</span>
+              <span className="example-text">
+                {" "}
+                (e.g. {example}, Range: {range})
+              </span>
             </label>
             <input
               type="number"
@@ -66,7 +72,9 @@ const FraudPredictionForm = () => {
             />
           </div>
         ))}
-        <button type="submit" className="submit-btn">Predict</button>
+        <button type="submit" className="submit-btn">
+          Predict
+        </button>
       </form>
 
       {prediction !== null && probability && (
@@ -77,7 +85,10 @@ const FraudPredictionForm = () => {
               {prediction === 1 ? "Fraudulent" : "Not Fraudulent"}
             </span>
           </h3>
-          <p>🟩 Not Fraud Probability: {(probability.not_fraud * 100).toFixed(2)}%</p>
+          <p>
+            🟩 Not Fraud Probability: {(probability.not_fraud * 100).toFixed(2)}
+            %
+          </p>
           <p>🟥 Fraud Probability: {(probability.fraud * 100).toFixed(2)}%</p>
         </div>
       )}

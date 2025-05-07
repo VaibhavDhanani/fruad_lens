@@ -1,21 +1,20 @@
-// src/pages/Signup.jsx
+// src/pages/Login.jsx
 import { useState } from 'react';
-import { useAuth } from '../context/auth.context';
-import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/Auth.context';
+import { Link } from 'react-router-dom';
 
-const Signup = () => {
-  const [name, setName] = useState('');
-  const[username,setUsername]= useState('');
+const Login = () => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { signup } = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await signup(name, username, password);
+      await login(username, password);
     } catch (err) {
-      setError('Failed to create an account. Please try again.');
+      setError('Failed to login. Please check your credentials.');
     }
   };
 
@@ -24,7 +23,7 @@ const Signup = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create a new account
+            Sign in to your account
           </h2>
         </div>
         {error && (
@@ -33,35 +32,20 @@ const Signup = () => {
           </div>
         )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="name" className="sr-only">
-                Full Name
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div>
               <label htmlFor="username" className="sr-only">
-                username
+                Username
               </label>
               <input
                 id="username"
                 name="username"
-                type="text"
+                type="string"
                 autoComplete="username"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="username"
+                placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
@@ -84,20 +68,40 @@ const Signup = () => {
             </div>
           </div>
 
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                Remember me
+              </label>
+            </div>
+
+            <div className="text-sm">
+              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot your password?
+              </a>
+            </div>
+          </div>
+
           <div>
             <button
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Sign up
+              Sign in
             </button>
           </div>
         </form>
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-              Sign in
+            Don't have an account?{' '}
+            <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Sign up
             </Link>
           </p>
         </div>
@@ -106,4 +110,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;
