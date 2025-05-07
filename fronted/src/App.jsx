@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/Auth.context";
 import PrivateLayout from "./components/ProtectedRoute";
 import Login from "./pages/Login.page";
-import Signup from "./pages/Signup.page";
+import Signup from "./pages/Signup/Signup.page";
 import Dashboard from "./pages/Dashboard.page";
 import FraudPredictionFrom from "./components/FraudPredictionForm";
 import LoginForm from "./components/Login";
