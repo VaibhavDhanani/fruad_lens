@@ -33,19 +33,25 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid MPIN' });
     }
 
+    // ✅ Update latest_login timestamp
+    user.latest_login = new Date();
+    await user.save();
+
     const token = jwt.sign(
       { id: user._id, username: user.username },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    const { mpin: _, ...userData } = user.toObject(); // Remove mpin
+    const { mpin: _, ...userData } = user.toObject(); // Remove mpin from response
     return res.status(200).json({ user: userData, token });
+
   } catch (err) {
     console.error("Login error:", err);
     return res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 
 
