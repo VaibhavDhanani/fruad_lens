@@ -1,24 +1,6 @@
 import User from "../models/user.js";
 import Transaction from "../models/transaction.js";
-export const markFraud = async (req, res) => {
-  const { transactionId } = req.params;
-
-  try {
-    const transaction = await Transaction.findById(transactionId);
-
-    if (!transaction) {
-      return res.status(404).json({ message: "Transaction not found" });
-    }
-
-    transaction.status = "FRAUD";
-    await transaction.save();
-
-    res.status(200).json({ message: "Transaction marked as fraud", transaction });
-  } catch (error) {
-    console.error("Error marking transaction as fraud:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+import { addTransactionToNeo4j } from "../neo4jService.js";
 export const transferMoney = async (req, res) => {
   try {
     const {
@@ -41,7 +23,14 @@ export const transferMoney = async (req, res) => {
     }
 
     // Parse senderId and extract username
-    const senderData = JSON.parse(senderId);
+    let senderData;
+
+    if (typeof senderId === 'string') {
+      senderData = JSON.parse(senderId);
+    } else {
+      senderData = senderId; // Assuming senderId is already an object
+    }
+
     const senderUsername = senderData.username;
 
     // Find sender and receiver using their usernames
@@ -208,6 +197,18 @@ export const createTransaction = async (req, res) => {
       beneficiary_account_number: receiver._id || ''
     });
 
+    await addTransactionToNeo4j({
+      _id: transaction._id,  // Include the _id field
+      senderUsername,
+      receiverUsername,
+      transaction_amount: amt,
+      description,
+      status: "PENDING",
+      device_id,
+      ip_address,
+      is_fraud: transaction.is_fraud || false  // Make sure to include this field
+    });
+    
     return res.status(200).json({
       message: "Transaction created, pending authorization",
       transaction: transaction
