@@ -1,61 +1,61 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Shield, Lock, Eye, EyeOff } from "lucide-react"
-import "./login.css"
+import { useState } from "react";
+import { Shield, Lock, Eye, EyeOff } from "lucide-react";
+import "./Login.css";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-  })
+  });
 
-  const [errors, setErrors] = useState({})
-  const [showPassword, setShowPassword] = useState(false)
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-    })
-  }
+    });
+  };
 
   // Validate mobile number (username)
   const validateMobile = (mobile) => {
-    const mobileRegex = /^[6-9]\d{9}$/
-    return mobileRegex.test(mobile)
-  }
+    const mobileRegex = /^[6-9]\d{9}$/;
+    return mobileRegex.test(mobile);
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
     if (!formData.username) {
-      newErrors.username = "Mobile number is required"
+      newErrors.username = "Mobile number is required";
     } else if (!validateMobile(formData.username)) {
-      newErrors.username = "Please enter a valid Indian mobile number"
+      newErrors.username = "Please enter a valid Indian mobile number";
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required"
+      newErrors.password = "Password is required";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (validateForm()) {
       // Here you would typically send the data to your backend
-      console.log(formData)
-      alert("Login successful!")
+      console.log(formData);
+      alert("Login successful!");
     }
-  }
+  };
 
   const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   return (
     <div className="login-container">
@@ -65,7 +65,9 @@ const LoginForm = () => {
             <Shield className="icon-shield" />
             <h2>Secure Login Portal</h2>
           </div>
-          <p className="header-description">Enter your credentials to access your account</p>
+          <p className="header-description">
+            Enter your credentials to access your account
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -81,18 +83,20 @@ const LoginForm = () => {
                     placeholder="9876543210"
                     value={formData.username}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "")
+                      const value = e.target.value.replace(/\D/g, "");
                       handleChange({
                         target: {
                           name: "username",
                           value: value,
                         },
-                      })
+                      });
                     }}
                     maxLength={10}
                   />
                 </div>
-                {errors.username && <p className="error-message">{errors.username}</p>}
+                {errors.username && (
+                  <p className="error-message">{errors.username}</p>
+                )}
               </div>
 
               <div className="form-group">
@@ -110,12 +114,20 @@ const LoginForm = () => {
                     type="button"
                     className="password-toggle"
                     onClick={togglePasswordVisibility}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
-                    {showPassword ? <EyeOff className="password-icon" /> : <Eye className="password-icon" />}
+                    {showPassword ? (
+                      <EyeOff className="password-icon" />
+                    ) : (
+                      <Eye className="password-icon" />
+                    )}
                   </button>
                 </div>
-                {errors.password && <p className="error-message">{errors.password}</p>}
+                {errors.password && (
+                  <p className="error-message">{errors.password}</p>
+                )}
               </div>
 
               <div className="form-options">
@@ -137,7 +149,7 @@ const LoginForm = () => {
 
           <div className="card-footer">
             <button type="submit" className="btn-primary">
-              Login 
+              Login
             </button>
             <p className="signup-link">
               Don't have an account? <a href="/signup">Register Now</a>
@@ -146,7 +158,7 @@ const LoginForm = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;

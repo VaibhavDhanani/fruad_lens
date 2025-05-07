@@ -1,7 +1,6 @@
-// src/auth/AuthContext.jsx
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {loginUser,registerUser,verifyToken} from '../services/auth.service'
+import {loginUser,registerUser } from '../services/Auth.service'
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {

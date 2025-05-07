@@ -1,7 +1,7 @@
 // components/PrivateLayout.jsx
-import { Outlet } from "react-router-dom";
-import { useAuth } from "../context/auth.context";
-import Navbar from "./navbar";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../context/Auth.context";
+import Navbar from "./Navbar";
 
 const PrivateLayout = () => {
   const { user } = useAuth();
@@ -13,7 +13,9 @@ const PrivateLayout = () => {
   return (
     <>
       <Navbar />
-      <main><Outlet /></main>
+      <main>
+        <Outlet />
+      </main>
     </>
   );
 };

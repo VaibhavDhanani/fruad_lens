@@ -1,6 +1,16 @@
 import React, { useState } from "react";
-import { Shield, User, Mail, Lock, CreditCard, Calendar, Check, ChevronRight, ChevronLeft } from 'lucide-react';
-import "./signup.css";
+import {
+  Shield,
+  User,
+  Mail,
+  Lock,
+  CreditCard,
+  Calendar,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
+import "./Signup.css";
 
 const AadharCardInput = ({ value, onChange, error }) => {
   const handleChange = (e, index) => {
@@ -15,7 +25,8 @@ const AadharCardInput = ({ value, onChange, error }) => {
     onChange(newFullValue);
 
     if (newValue.length === 4 && index < 2) {
-      const nextInput = e.target.parentElement.nextElementSibling.querySelector("input");
+      const nextInput =
+        e.target.parentElement.nextElementSibling.querySelector("input");
       if (nextInput) nextInput.focus();
     }
   };
@@ -64,7 +75,7 @@ const AadharCardInput = ({ value, onChange, error }) => {
 const SignupForm = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
-  
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -74,112 +85,119 @@ const SignupForm = () => {
     confirmPassword: "",
     age: "",
     aadharCard: "",
-    panCard: ""
+    panCard: "",
   });
-  
+
   const [errors, setErrors] = useState({});
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
-  
+
   const handleRadioChange = (value) => {
     setFormData({
       ...formData,
-      gender: value
+      gender: value,
     });
   };
-  
+
   const handleAadharChange = (value) => {
     setFormData({
       ...formData,
-      aadharCard: value
+      aadharCard: value,
     });
   };
-  
+
   // Format PAN card input to uppercase
   const handlePanChange = (e) => {
     const value = e.target.value.toUpperCase();
     setFormData({
       ...formData,
-      panCard: value
+      panCard: value,
     });
   };
-  
+
   // Validate mobile number (username)
   const validateMobile = (mobile) => {
     const mobileRegex = /^[6-9]\d{9}$/;
     return mobileRegex.test(mobile);
   };
-  
+
   // Validate email
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-  
+
   // Validate password
   const validatePassword = (password) => {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     const hasSpecial = /[^A-Za-z0-9]/.test(password);
-    
-    return password.length >= 8 && hasUpperCase && hasLowerCase && hasNumber && hasSpecial;
+
+    return (
+      password.length >= 8 &&
+      hasUpperCase &&
+      hasLowerCase &&
+      hasNumber &&
+      hasSpecial
+    );
   };
-  
+
   // Validate Aadhar card
   const validateAadhar = (aadhar) => {
     const digitsOnly = aadhar.replace(/\s/g, "");
     return digitsOnly.length === 12 && /^\d+$/.test(digitsOnly);
   };
-  
+
   // Validate PAN card
   const validatePan = (pan) => {
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
     return panRegex.test(pan);
   };
-  
+
   const validateStep = (stepNumber) => {
     const newErrors = {};
-    
+
     if (stepNumber === 1) {
       if (!formData.username) {
         newErrors.username = "Mobile number is required";
       } else if (!validateMobile(formData.username)) {
         newErrors.username = "Please enter a valid Indian mobile number";
       }
-      
+
       if (!formData.email) {
         newErrors.email = "Email is required";
       } else if (!validateEmail(formData.email)) {
         newErrors.email = "Please enter a valid email address";
       }
-      
+
       if (!formData.fullName || formData.fullName.length < 3) {
         newErrors.fullName = "Full name must be at least 3 characters";
       }
-      
+
       if (!formData.gender) {
         newErrors.gender = "Please select your gender";
       }
     }
-    
+
     if (stepNumber === 2) {
       if (!formData.password) {
         newErrors.password = "Password is required";
       } else if (!validatePassword(formData.password)) {
-        newErrors.password = "Password must have 8+ characters with uppercase, lowercase, number, and special character";
+        newErrors.password =
+          "Password must have 8+ characters with uppercase, lowercase, number, and special character";
       }
-      
+
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "Passwords do not match";
       }
-      
+
       if (!formData.age) {
         newErrors.age = "Age is required";
       } else {
@@ -189,31 +207,32 @@ const SignupForm = () => {
         }
       }
     }
-    
+
     if (stepNumber === 3) {
       if (!validateAadhar(formData.aadharCard)) {
         newErrors.aadharCard = "Aadhar card must be 12 digits";
       }
-      
+
       if (!validatePan(formData.panCard)) {
-        newErrors.panCard = "Please enter a valid PAN card number (e.g., ABCDE1234F)";
+        newErrors.panCard =
+          "Please enter a valid PAN card number (e.g., ABCDE1234F)";
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   const nextStep = () => {
     if (validateStep(step)) {
       setStep(step + 1);
     }
   };
-  
+
   const prevStep = () => {
     setStep(step - 1);
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateStep(step)) {
@@ -236,12 +255,17 @@ const SignupForm = () => {
               Step {step} of {totalSteps}
             </div>
           </div>
-          <p className="header-description">All information is encrypted and securely stored</p>
+          <p className="header-description">
+            All information is encrypted and securely stored
+          </p>
           <div className="progress-container">
-            <div className="progress-bar" style={{ width: `${(step / totalSteps) * 100}%` }}></div>
+            <div
+              className="progress-bar"
+              style={{ width: `${(step / totalSteps) * 100}%` }}
+            ></div>
           </div>
         </div>
-        
+
         <form onSubmit={handleSubmit}>
           <div className="card-content">
             {step === 1 && (
@@ -264,15 +288,19 @@ const SignupForm = () => {
                         handleChange({
                           target: {
                             name: "username",
-                            value: value
-                          }
+                            value: value,
+                          },
                         });
                       }}
                       maxLength={10}
                     />
                   </div>
-                  <p className="input-description">Your mobile number will be your username</p>
-                  {errors.username && <p className="error-message">{errors.username}</p>}
+                  <p className="input-description">
+                    Your mobile number will be your username
+                  </p>
+                  {errors.username && (
+                    <p className="error-message">{errors.username}</p>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -287,7 +315,9 @@ const SignupForm = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  {errors.email && <p className="error-message">{errors.email}</p>}
+                  {errors.email && (
+                    <p className="error-message">{errors.email}</p>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -299,7 +329,9 @@ const SignupForm = () => {
                     value={formData.fullName}
                     onChange={handleChange}
                   />
-                  {errors.fullName && <p className="error-message">{errors.fullName}</p>}
+                  {errors.fullName && (
+                    <p className="error-message">{errors.fullName}</p>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -339,7 +371,9 @@ const SignupForm = () => {
                       <label htmlFor="other">Other</label>
                     </div>
                   </div>
-                  {errors.gender && <p className="error-message">{errors.gender}</p>}
+                  {errors.gender && (
+                    <p className="error-message">{errors.gender}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -363,9 +397,12 @@ const SignupForm = () => {
                     />
                   </div>
                   <p className="input-description">
-                    Must contain at least 8 characters, including uppercase, lowercase, number, and special character
+                    Must contain at least 8 characters, including uppercase,
+                    lowercase, number, and special character
                   </p>
-                  {errors.password && <p className="error-message">{errors.password}</p>}
+                  {errors.password && (
+                    <p className="error-message">{errors.password}</p>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -379,7 +416,9 @@ const SignupForm = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
+                  {errors.confirmPassword && (
+                    <p className="error-message">{errors.confirmPassword}</p>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -395,8 +434,8 @@ const SignupForm = () => {
                         handleChange({
                           target: {
                             name: "age",
-                            value: value
-                          }
+                            value: value,
+                          },
                         });
                       }}
                     />
@@ -420,7 +459,9 @@ const SignupForm = () => {
                     onChange={handleAadharChange}
                     error={errors.aadharCard}
                   />
-                  <p className="input-description">Enter your 12-digit Aadhar number in format XXXX XXXX XXXX</p>
+                  <p className="input-description">
+                    Enter your 12-digit Aadhar number in format XXXX XXXX XXXX
+                  </p>
                 </div>
 
                 <div className="form-group">
@@ -433,8 +474,12 @@ const SignupForm = () => {
                     onChange={handlePanChange}
                     maxLength={10}
                   />
-                  <p className="input-description">Format: AAAAA0000A (5 letters, 4 numbers, 1 letter)</p>
-                  {errors.panCard && <p className="error-message">{errors.panCard}</p>}
+                  <p className="input-description">
+                    Format: AAAAA0000A (5 letters, 4 numbers, 1 letter)
+                  </p>
+                  {errors.panCard && (
+                    <p className="error-message">{errors.panCard}</p>
+                  )}
                 </div>
 
                 <div className="security-notice">
@@ -443,8 +488,10 @@ const SignupForm = () => {
                     <div>
                       <h4>Important Notice</h4>
                       <p>
-                        By submitting this form, you confirm that all information provided is accurate and belongs to
-                        you. Providing false information may lead to legal consequences under applicable laws.
+                        By submitting this form, you confirm that all
+                        information provided is accurate and belongs to you.
+                        Providing false information may lead to legal
+                        consequences under applicable laws.
                       </p>
                     </div>
                   </div>
@@ -455,7 +502,11 @@ const SignupForm = () => {
 
           <div className="card-footer">
             {step > 1 ? (
-              <button type="button" className="btn-secondary" onClick={prevStep}>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={prevStep}
+              >
                 <ChevronLeft className="btn-icon" /> Previous
               </button>
             ) : (
