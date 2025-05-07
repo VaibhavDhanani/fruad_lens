@@ -107,8 +107,13 @@ export const createTransaction = async (req, res) => {
     if (!receiverUsername || !senderId || isNaN(amt) || amt <= 0) {
       return res.status(400).json({ message: "Invalid transaction details" });
     }
+let senderData
+    if (typeof senderId === 'string') {
+      senderData = JSON.parse(senderId);
+    } else {
+      senderData = senderId; // Assuming senderId is already an object
+    }
 
-    const senderData = JSON.parse(senderId);
     const senderUsername = senderData.username;
 
     const [sender, receiver] = await Promise.all([
@@ -277,5 +282,24 @@ export const authorizeTransaction = async (req, res) => {
   } catch (error) {
     console.error("Authorize Transaction Error:", error);
     return res.status(500).json({ message: "Something went wrong", error: error.message });
+  }
+};
+export const markFraud = async (req, res) => {
+  const { transactionId } = req.params;
+
+  try {
+    const transaction = await Transaction.findById(transactionId);
+
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    transaction.status = "FRAUD";
+    await transaction.save();
+
+    res.status(200).json({ message: "Transaction marked as fraud", transaction });
+  } catch (error) {
+    console.error("Error marking transaction as fraud:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
