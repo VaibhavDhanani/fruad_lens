@@ -11,31 +11,31 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const navigate = useNavigate();
   
-  const login = async (username, password) => {
+  const login = async (username, mpin) => {
     try {
-      const response = await loginUser(username, password);
-  
+      const response = await loginUser(username, mpin);
       setUser(response.user);
       setToken(response.token);
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user)); // Storing user object properly
-      navigate('/dashboard'); // Redirect after login
+      localStorage.setItem('user', JSON.stringify(response.user));
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
     }
   };
   
-  const signup = async (name, username,email, password) => {
+  
+  const signup = async (name, username, mpin, gender, pan_card) => {
     try {
-      // This will be implemented in authService.js
-      const response = await registerUser(name, username, email, password);
-      navigate('/login'); // Redirect after signup
+      const response = await registerUser(name, username, mpin, gender, pan_card);
+      navigate('/login');
     } catch (error) {
       console.error('Signup failed:', error);
       throw error;
     }
   };
+  
 
   const logout = () => {
     setUser(null);
