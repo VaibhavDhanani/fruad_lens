@@ -7,5 +7,5 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/all', authMiddleware, getAllUsers);
 router.get('/info',authMiddleware, getUserInfo);
-router.get('/user-summary',authMiddleware,getSummary);
+router.get('/user-summary/:userId',getSummary);
 export default router;

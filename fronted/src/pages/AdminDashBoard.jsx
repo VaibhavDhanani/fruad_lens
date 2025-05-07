@@ -22,7 +22,7 @@ const AdminDashboard = () => {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/transactions/all');
+      const response = await fetch('http://localhost:5000/api/transactions/');
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }

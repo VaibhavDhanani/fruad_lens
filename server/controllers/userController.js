@@ -70,36 +70,34 @@ export const getUserInfo = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 export const getSummary = async (req, res) => {
   try {
-    // Assuming req.user.id is populated by authentication middleware
-    const user = await User.findById(req.user.id);
+    const userid = req.params.userId;
+    console.log("Requested User ID: ", userid); // log user ID received from the URL
+
+    const user = await User.findById(userid);
     if (!user) {
+      console.log("User not found");
       return res.status(404).json({ message: 'User not found' });
     }
 
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    // Fetching transactions where the user is either the sender or receiver
     const transactions = await Transaction.find({
-      $or: [
-        { sender: user._id },  // Transactions where the user is the sender
-        { receiver: user._id }  // Transactions where the user is the receiver
-      ],
-      createdAt: { $gte: sevenDaysAgo }  // Transactions in the past 7 days
+      $or: [{ user: user._id }, { counterparty: user._id }],
+      createdAt: { $gte: sevenDaysAgo }
     });
+
+    console.log("Transactions found:", transactions); // log the fetched transactions
+
     let income = 0;
     let expense = 0;
 
-    // Calculate the total income and expense
     transactions.forEach(tx => {
-      if (tx.receiver.toString() === user._id.toString()) {
-        // If the user is the receiver, it's income
+      if (tx.counterparty.toString() === user._id.toString()) {
         income += tx.transaction_amount;
-      } else if (tx.sender.toString() === user._id.toString()) {
-        // If the user is the sender, it's an expense
+      } else if (tx.user.toString() === user._id.toString()) {
         expense += tx.transaction_amount;
       }
     });
@@ -110,3 +108,4 @@ export const getSummary = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
