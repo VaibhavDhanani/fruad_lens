@@ -13,6 +13,7 @@ import HomePage from "./pages/Home.page";
 import AdminDashboard from "./pages/AdminDashBoard";
 import Layout from "./components/Layout";
 import ProfileCard from "./pages/Profile/ProfileCard";
+import FraudDetectionPortal from "./pages/Admin/FruadDetectionPortal";
 function App() {
   return (
     <Router>
@@ -36,6 +37,7 @@ function App() {
 
           {/* Admin route */}
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/model" element={<FraudDetectionPortal/>}/>
         </Routes>
       </AuthProvider>
     </Router>
