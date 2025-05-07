@@ -1,92 +1,126 @@
-// src/pages/Login.jsx
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/Auth.context';
 import { Link } from 'react-router-dom';
-
+import { AtSign, Shield as ShieldLock, AlertTriangle } from 'lucide-react';
+import FormInput from './Signup/FormInput';
+import MpinInput from './Signup/MpinInput';
 const Login = () => {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState(['', '', '', '', '', '']);
+  const [mpin, setMpin] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRefs = useRef([]);
   const { login } = useAuth();
 
-  const handleChange = (e, index) => {
-    const value = e.target.value;
-    if (/^[0-9]?$/.test(value)) {
-      const updated = [...password];
-      updated[index] = value;
-      setPassword(updated);
-      if (value && index < 5) inputRefs.current[index + 1].focus();
+  useEffect(() => {
+    if (inputRefs.current[0]) {
+      inputRefs.current[0]?.focus();
     }
-  };
-
-  const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && !password[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
-    }
-  };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const passwordString = password.join('');
-    if (passwordString.length < 6) {
-      setError('Please enter your 6-digit MPIN.');
-      return;
-    }
+    setError('');
+    setIsSubmitting(true);
+
     try {
-      await login(username, passwordString);
-    } catch {
-      setError('Failed to login. Please check your credentials.');
+      const mpinString = mpin.join('');
+      if (mpinString.length < 6) {
+        setError('Please enter your complete 6-digit MPIN.');
+        return;
+      }
+      await login(username, mpinString);
+    } catch (err) {
+      setError('Invalid credentials. Please check your username and MPIN.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-        {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>}
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="username"
-            placeholder="Username"
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <div className="flex justify-center space-x-2">
-            {password.map((digit, i) => (
-              <input
-                key={i}
-                ref={(el) => (inputRefs.current[i] = el)}
-                type="password"
-                maxLength="1"
-                value={digit}
-                onChange={(e) => handleChange(e, i)}
-                onKeyDown={(e) => handleKeyDown(e, i)}
-                className="w-10 h-10 text-center border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-              />
-            ))}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-6">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-3">
+            <ShieldLock className="h-8 w-8 text-blue-600" />
           </div>
-          <div className="flex justify-between items-center text-sm text-gray-600">
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" /> Remember me
-            </label>
-            <a href="#" className="text-indigo-600 hover:text-indigo-500">
-              Forgot your password?
-            </a>
+          <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Access your secure wallet with enhanced protection
+          </p>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md animate-fadeIn">
+            <div className="flex items-start">
+              <AlertTriangle className="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
           </div>
-          <button type="submit" className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-            Sign in
-          </button>
+        )}
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md">
+            <FormInput
+              id="username"
+              name="username"
+              label="Username"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              icon={AtSign}
+            />
+
+            <MpinInput
+              mpin={mpin}
+              setMpin={setMpin}
+              inputRefs={inputRefs}
+            />
+
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                  Remember me
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                  Forgot MPIN?
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`group relative w-full flex justify-center py-3 px-4 border border-transparent 
+                text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                transition-all duration-150 ease-in-out shadow-sm
+                ${isSubmitting ? 'opacity-75 cursor-not-allowed' : ''}`}
+            >
+              {isSubmitting ? 'Signing in...' : 'Sign in to Wallet'}
+            </button>
+          </div>
         </form>
-        <p className="text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-indigo-600 hover:text-indigo-500 font-medium">
-            Sign up
-          </Link>
-        </p>
+
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{' '}
+            <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+              Create a secure wallet
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
