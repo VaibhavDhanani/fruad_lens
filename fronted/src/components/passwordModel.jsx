@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 
-const PasswordAuthorization = ({ onSubmit, onCancel }) => {
+const PasswordAuthorization = ({ onSubmit, onCancel, message }) => {
   const [digits, setDigits] = useState(Array(6).fill(""));
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
@@ -50,7 +50,25 @@ const PasswordAuthorization = ({ onSubmit, onCancel }) => {
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-        <h3 className="text-xl font-semibold mb-4 text-center">Transaction Authorization</h3>
+        <h3 className="text-xl font-semibold mb-2 text-center">
+          Transaction Authorization
+        </h3>
+
+        {/* Fraud Probability Message */}
+        {message?.text && (
+          <div
+            className={`mb-4 text-sm whitespace-pre-wrap text-center ${
+              message.type === "error"
+                ? "text-red-600"
+                : message.type === "info"
+                ? "text-blue-600"
+                : "text-gray-700"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="flex justify-between gap-2 mb-4">
             {digits.map((digit, index) => (
@@ -68,7 +86,11 @@ const PasswordAuthorization = ({ onSubmit, onCancel }) => {
               />
             ))}
           </div>
-          {error && <p className="text-red-500 text-sm text-center mb-2">{error}</p>}
+
+          {error && (
+            <p className="text-red-500 text-sm text-center mb-2">{error}</p>
+          )}
+
           <div className="flex justify-between items-center">
             <button
               type="button"

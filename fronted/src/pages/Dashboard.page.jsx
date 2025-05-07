@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import TransactionForm from "../forms/transactionForm";
 import TransactionHistory from "../components/TransactionHistory";
+import { predictTransaction } from "../services/ML.services";
+import { markTransactionAsFraud } from "../services/Transaction.service"; // assume this API exists
+
 import SecurityInfo from "./SecurityInfo";
 import {
   ArrowDownCircle,
@@ -52,10 +55,10 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-  
+
     fetchSummary();
   }, []);
-  
+
   useEffect(() => {
     const loadFingerprint = async () => {
       const fp = await FingerprintJS.load();
@@ -138,7 +141,7 @@ const Dashboard = () => {
   };
 
   const getTransactionStatus = (tx) => {
-   
+
     if (tx.status) return tx.status;
 
     const hoursSinceCreated =
@@ -185,7 +188,7 @@ const Dashboard = () => {
   const handleTransfer = async (formData) => {
     setIsProcessing(true);
     setMessage({ text: "", type: "" });
-  
+
     try {
       const payload = {
         ...formData,
@@ -198,16 +201,45 @@ const Dashboard = () => {
         beneficiary_lat: 0,  // will be updated after password authorization
         beneficiary_long: 0, // will be updated after password authorization
       };
-  
+
       const { ok, data } = await createTransaction(payload, token);
-  
+
       if (ok) {
         setMessage({
           text: "Transaction created! Please enter your password to authorize the transfer.",
           type: "info",
         });
-  
-        setTransactionId(data.transactionId);
+        const tx = data.transaction;
+        const txdata = {
+          'IP_Address_Flag': 0,
+          "Previous_Fraudulent_Activity": 0,
+          "Daily_Transaction_Count": tx.daily_transaction_count,
+          "Failed_Transaction_Count_7d": tx.failed_transaction_count_7d,
+          "Account_Age": tx.account_age,
+          "Transaction_Distance": 0,
+          "Is_Weekend": tx.Is_weekend == true ? 1 : 0,
+          "IsNight": tx.is_night = true ? 1 : 0,
+          "Time_Since_Last_Transaction": parseInt(tx.time_since_last_transaction, 10),
+          "Distance_Avg_Transaction_7d": tx.distance_avg_transaction_7d,
+          "Transaction_To_Balance_Ratio": tx.transaction_to_balance_ratio,
+        };
+        const prediction = await predictTransaction(txdata);
+        if (prediction.is_fraud) {
+          await markTransactionAsFraud(tx._id, token);
+          setMessage({
+            text: `⚠️ Fraud detected! Transaction has been flagged and will not proceed.\n
+  Fraud Probability: ${(prediction.fraud_probability * 100).toFixed(2)}%\n
+  Most Affected Feature: ${prediction.most_affected_feature}\n`,
+            type: "error",
+          });
+          return; // Do not proceed with password authorization
+        }else {
+          setMessage({
+            text: `Fraud Probability: ${(prediction.fraud_probability * 100).toFixed(2)}`,
+            type: "info",
+          })
+        }
+        setTransactionId(data.transaction._id);
         setIsPasswordModalOpen(true);  // Open the password authorization modal
       } else {
         setMessage({
@@ -233,15 +265,15 @@ const Dashboard = () => {
           text: "Transaction authorized successfully! 🎉",
           type: "success",
         });
-      }else{
+      } else {
         setMessage({
           text: "Transaction failed! ",
           type: "error",
         });
 
-      } 
-        fetchDashboardData();
-        setIsPasswordModalOpen(false);  // Close the modal
+      }
+      fetchDashboardData();
+      setIsPasswordModalOpen(false);  // Close the modal
       return ok;
     } catch (error) {
       setMessage({
@@ -251,7 +283,7 @@ const Dashboard = () => {
       return false;
     }
   };
-  
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -293,9 +325,10 @@ const Dashboard = () => {
           />
         </div>
       </div>
-          {/* Password Authorization Modal */}
-          {isPasswordModalOpen && (
+      {/* Password Authorization Modal */}
+      {isPasswordModalOpen && (
         <PasswordAuthorization
+          message={message}
           onSubmit={handlePasswordAuthorization}
           onCancel={() => setIsPasswordModalOpen(false)}
         />

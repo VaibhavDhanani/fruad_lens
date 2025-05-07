@@ -9,7 +9,8 @@ from app.api.routes import (
     user_routes,
     transaction_routes,
     auth_routes,
-    model_routes
+    model_routes,
+    model1_routes
 )
 
 app = FastAPI()
@@ -35,6 +36,7 @@ app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
 app.include_router(model_routes.router)
 app.include_router(transaction_routes.router)
+app.include_router(model1_routes.router)
 
 
 @app.get("/", tags=["Status"])

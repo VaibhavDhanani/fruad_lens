@@ -1,5 +1,5 @@
 import express from 'express';
-import { transferMoney ,createTransaction,authorizeTransaction} from '../controllers/TransferController.js';
+import { transferMoney ,createTransaction,authorizeTransaction,markFraud} from '../controllers/TransferController.js';
 import Transaction from '../models/transaction.js';
 const router = express.Router();
 import authMiddleware from '../middlewares/authMiddleware.js'
@@ -65,5 +65,6 @@ router.post('/transfer',authMiddleware, transferMoney);
 router.post('/initiate',authMiddleware, createTransaction);
 
 router.post(`/authorize/:transactionID`,authorizeTransaction);
+router.put('/transaction/:id',authMiddleware, markFraud);
 
 export default router;

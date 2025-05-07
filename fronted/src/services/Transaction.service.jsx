@@ -1,5 +1,25 @@
 // services/transactionService.js
 import api from "../utils/db"; // api is likely an Axios instance
+export const markTransactionAsFraud = async (transactionId, token) => {
+  try {
+    const res = await api.put(`/transactions/${transactionId}`, {
+      status: "fraud",
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return { ok: true, data: res.data };
+  } catch (error) {
+    console.error("Mark as fraud error:", error);
+    if (error.response) {
+      return { ok: false, data: error.response.data };
+    }
+    return { ok: false, data: { message: "Network error" } };
+  }
+};
+
   export const authorizeTransaction =async(transactionID,password,token)=>{
   try {
     const res = await api.post(`/transactions/authorize/${transactionID}`, {password} ,{
@@ -57,7 +77,6 @@ export const transferAmount = async (payload,token) => {
 
 export const getUserTransactions = async (userId) => {
   try {
-    console.log(userId)
     const user = JSON.parse(userId)
     console.log(user._id)
     const res = await api.get(`/transactions/${user._id}`);

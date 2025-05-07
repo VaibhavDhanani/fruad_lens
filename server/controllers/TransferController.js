@@ -1,6 +1,24 @@
 import User from "../models/user.js";
 import Transaction from "../models/transaction.js";
+export const markFraud = async (req, res) => {
+  const { transactionId } = req.params;
 
+  try {
+    const transaction = await Transaction.findById(transactionId);
+
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    transaction.status = "FRAUD";
+    await transaction.save();
+
+    res.status(200).json({ message: "Transaction marked as fraud", transaction });
+  } catch (error) {
+    console.error("Error marking transaction as fraud:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 export const transferMoney = async (req, res) => {
   try {
     const {
@@ -192,7 +210,7 @@ export const createTransaction = async (req, res) => {
 
     return res.status(200).json({
       message: "Transaction created, pending authorization",
-      transactionId: transaction._id
+      transaction: transaction
     });
 
   } catch (error) {
