@@ -1,129 +1,126 @@
-  import { useState } from 'react';
-  import { Send, User, DollarSign, MessageSquare, X } from 'lucide-react';
-  import LoadingDots from '../pages/LoadingDots';
-import ConfirmationDialog from '@/components/ConfirmationDialog';
-  const TransactionForm = ({ onSubmit, isProcessing, message }) => {
-    const [form, setForm] = useState({
-      receiverUsername: '',
-      amount: '',
-      description: ''
-    });
+import { useState } from 'react';
+import { Send, User, DollarSign, MessageSquare, X } from 'lucide-react';
+import LoadingDots from '../pages/LoadingDots';
+const TransactionForm = ({ onSubmit, isProcessing, message }) => {
+  const [form, setForm] = useState({
+    receiverUsername: '',
+    amount: '',
+    description: ''
+  });
 
-    const [errors, setErrors] = useState({});
-    const [showMessage, setShowMessage] = useState(true);
-    // const [showConfirmation, setShowConfirmation] = useState(false);
-    // const [pendingForm, setPendingForm] = useState(null);
-    const [transactionId, setTransactionId] = useState(null);
-const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const [showMessage, setShowMessage] = useState(true);
+  const [transactionId, setTransactionId] = useState(null);
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [password, setPassword] = useState('');
 
-    const validateForm = () => {
-      const newErrors = {};
-      if (!form.receiverUsername.trim()) {
-        newErrors.receiverUsername = 'Receiver username is required';
-      }
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.receiverUsername.trim()) {
+      newErrors.receiverUsername = 'Receiver username is required';
+    }
 
-      if (!form.amount.trim()) {
-        newErrors.amount = 'Amount is required';
-      } else if (isNaN(form.amount) || parseFloat(form.amount) <= 0) {
-        newErrors.amount = 'Amount must be a positive number';
-      }
+    if (!form.amount.trim()) {
+      newErrors.amount = 'Amount is required';
+    } else if (isNaN(form.amount) || parseFloat(form.amount) <= 0) {
+      newErrors.amount = 'Amount must be a positive number';
+    }
 
-      setErrors(newErrors);
+    setErrors(newErrors);
 
-      // Autofocus first invalid field
-      if (Object.keys(newErrors).length > 0) {
-        const firstErrorField = Object.keys(newErrors)[0];
-        document.querySelector(`[name="${firstErrorField}"]`)?.focus();
-      }
+    // Autofocus first invalid field
+    if (Object.keys(newErrors).length > 0) {
+      const firstErrorField = Object.keys(newErrors)[0];
+      document.querySelector(`[name="${firstErrorField}"]`)?.focus();
+    }
 
-      return Object.keys(newErrors).length === 0;
-    };
+    return Object.keys(newErrors).length === 0;
+  };
 
-    const handleChange = (e) => {
-      const { name, value } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-      setForm({ ...form, [name]: value });
+    setForm({ ...form, [name]: value });
 
-      if (errors[name]) {
-        setErrors(prev => ({ ...prev, [name]: undefined }));
-      }
-    };
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+  };
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setShowMessage(false);
-    
-      if (!validateForm()) return;
-    
-      // Step 1: Create the transaction
-      const createdTransactionId = await onSubmit(form); // should return ID
-      if (createdTransactionId) {
-        setTransactionId(createdTransactionId);
-        setShowPasswordPrompt(true);
-        setForm({ receiverUsername: '', amount: '', description: '' });
-      } else {
-        setShowMessage(true); // show error from message
-      }
-    };
-    
-    // const handleConfirmSubmit = async () => {
-    //   setShowConfirmation(false);
-    //   const success = await onSubmit(pendingForm);
-    //   if (success) {
-    //     setForm({ receiverUsername: '', amount: '', description: '' });
-    //   }
-    //   setShowMessage(true);
-    // };
-    const handlePasswordSubmit = async () => {
-      if (!password.trim()) return;
-    
-      const success = await authorizeTransaction({ transactionId, password });
-      setShowPasswordPrompt(false);
-      setPassword('');
-      setTransactionId(null);
-    
-      if (!success) {
-        // Handle failure: maybe show a toast or error
-        setShowMessage(true);
-      }
-    };
-    
-    return (
-      <>
-{showPasswordPrompt && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-sm space-y-4">
-      <h2 className="text-lg font-semibold text-gray-800">Enter Password</h2>
-      <input
-        type="password"
-        placeholder="Transaction password"
-        className="w-full px-4 py-2 border border-gray-300 rounded"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <div className="flex justify-end space-x-2">
-        <button
-          onClick={() => {
-            setShowPasswordPrompt(false);
-            setPassword('');
-            setTransactionId(null);
-          }}
-          className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handlePasswordSubmit}
-          className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded"
-        >
-          Confirm
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setShowMessage(false);
+
+    if (!validateForm()) return;
+
+    // Step 1: Create the transaction
+    const createdTransactionId = await onSubmit(form); // should return ID
+    if (createdTransactionId) {
+      setTransactionId(createdTransactionId);
+      setShowPasswordPrompt(true);
+      setForm({ receiverUsername: '', amount: '', description: '' });
+    } else {
+      setShowMessage(true); // show error from message
+    }
+  };
+
+  // const handleConfirmSubmit = async () => {
+  //   setShowConfirmation(false);
+  //   const success = await onSubmit(pendingForm);
+  //   if (success) {
+  //     setForm({ receiverUsername: '', amount: '', description: '' });
+  //   }
+  //   setShowMessage(true);
+  // };
+  const handlePasswordSubmit = async () => {
+    if (!password.trim()) return;
+
+    const success = await authorizeTransaction({ transactionId, password });
+    setShowPasswordPrompt(false);
+    setPassword('');
+    setTransactionId(null);
+
+    if (!success) {
+      // Handle failure: maybe show a toast or error
+      setShowMessage(true);
+    }
+  };
+
+  return (
+    <>
+      {showPasswordPrompt && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-sm space-y-4">
+            <h2 className="text-lg font-semibold text-gray-800">Enter Password</h2>
+            <input
+              type="password"
+              placeholder="Transaction password"
+              className="w-full px-4 py-2 border border-gray-300 rounded"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => {
+                  setShowPasswordPrompt(false);
+                  setPassword('');
+                  setTransactionId(null);
+                }}
+                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePasswordSubmit}
+                className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <div className="border-b border-gray-100 px-6 py-4">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center">
             <Send className="h-5 w-5 text-blue-600 mr-2" />
@@ -205,9 +202,8 @@ const [password, setPassword] = useState('');
           <button
             type="submit"
             disabled={isProcessing}
-            className={`w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-white font-medium transition-all duration-200 ${
-              isProcessing ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98]'
-            }`}
+            className={`w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-white font-medium transition-all duration-200 ${isProcessing ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-[0.98]'
+              }`}
           >
             {isProcessing ? (
               <>
@@ -239,6 +235,6 @@ const [password, setPassword] = useState('');
         </form>
       </div>
     </>);
-  };
+};
 
-  export default TransactionForm;
+export default TransactionForm;

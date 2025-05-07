@@ -233,14 +233,15 @@ const Dashboard = () => {
           text: "Transaction authorized successfully! 🎉",
           type: "success",
         });
-        fetchDashboardData();
-        setIsPasswordModalOpen(false);  // Close the modal
-      } else {
+      }else{
         setMessage({
-          text: "Invalid password. Please try again.",
+          text: "Transaction failed! ",
           type: "error",
         });
-      }
+
+      } 
+        fetchDashboardData();
+        setIsPasswordModalOpen(false);  // Close the modal
       return ok;
     } catch (error) {
       setMessage({
