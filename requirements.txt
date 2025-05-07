@@ -1,0 +1,6 @@
+fastapi
+pydantic
+xgboost
+uvicorn
+numpy
+json

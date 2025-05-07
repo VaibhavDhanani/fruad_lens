@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Shield, AlertTriangle, Activity } from 'lucide-react';
+import { Shield, AlertTriangle, Activity, List, Grid2X2 } from 'lucide-react';
 import ModelTestingForm from './ModelTestingForm';
 import ModelResults from './ModelResults';
+import CompareModelsView from './CompareModelsView';
 import { MODEL_TYPES } from './types';
 
 const FraudDetectionPortal = () => {
@@ -10,36 +11,46 @@ const FraudDetectionPortal = () => {
   const [testResults, setTestResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
 
   const handleSubmit = async (formData) => {
     setIsLoading(true);
     setError(null);
-    
     try {
+      console.log("➡️ Making request to backend...");
+    
       const endpoint = activeTab === 'all' 
         ? 'http://localhost:5000/api/models/test-all-models' 
         : `http://localhost:5000/api/models/test-model/${selectedModel}`;
-      
+    
+      console.log("🔗 Endpoint:", endpoint);
+      console.log("📤 Form data:", formData);
+    
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      
+    
+      console.log("📥 Raw response:", response);
+    
       if (!response.ok) {
+        const text = await response.text();
+        console.error("❌ Bad response:", text);
         throw new Error('Failed to get model predictions');
       }
-      
+    
       const results = await response.json();
+      console.log("✅ Prediction results:", results);
       setTestResults(results);
     } catch (error) {
-      console.error('Error testing model(s):', error);
+      console.error('🚨 Error testing model(s):', error);
       setError('Failed to get model predictions. Please try again.');
     } finally {
+      console.log("✅ Done loading");
       setIsLoading(false);
     }
+    
   };
 
   return (
@@ -116,16 +127,57 @@ const FraudDetectionPortal = () => {
 
       {error && (
         <div className="mb-8 bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-          {error}
+          <div className="flex items-start">
+            <AlertTriangle className="h-5 w-5 text-red-400 mt-0.5 mr-2" />
+            <div>
+              <h3 className="text-sm font-medium text-red-800">Error</h3>
+              <p className="mt-1 text-sm">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {testResults && activeTab === 'all' && (
+        <div className="mb-4 flex justify-end">
+          <div className="inline-flex rounded-md shadow-sm" role="group">
+            <button
+              type="button"
+              onClick={() => setViewMode('cards')}
+              className={`px-4 py-2 text-sm font-medium rounded-l-lg border ${
+                viewMode === 'cards' 
+                  ? 'bg-blue-50 text-blue-700 border-blue-300' 
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <Grid2X2 className="h-4 w-4 inline mr-1" />
+              Cards
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('table')}
+              className={`px-4 py-2 text-sm font-medium rounded-r-lg border ${
+                viewMode === 'table' 
+                  ? 'bg-blue-50 text-blue-700 border-blue-300' 
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <List className="h-4 w-4 inline mr-1" />
+              Table
+            </button>
+          </div>
         </div>
       )}
 
       {testResults && (
-        <ModelResults 
-          results={testResults} 
-          testMode={activeTab} 
-          selectedModel={activeTab === 'single' ? selectedModel : undefined} 
-        />
+        viewMode === 'cards' || activeTab === 'single' ? (
+          <ModelResults 
+            results={testResults} 
+            testMode={activeTab} 
+            selectedModel={activeTab === 'single' ? selectedModel : undefined} 
+          />
+        ) : (
+          <CompareModelsView results={testResults} />
+        )
       )}
 
       <div className="mt-12 bg-yellow-50 border border-yellow-100 rounded-lg p-4 flex items-start space-x-3 transition-all duration-300 hover:bg-yellow-100">

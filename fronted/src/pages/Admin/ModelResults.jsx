@@ -3,7 +3,6 @@ import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { MODEL_TYPES } from './types';
 
 const ModelResults = ({ results, testMode, selectedModel }) => {
-  // Get models to display based on test mode
   const modelsToDisplay = testMode === 'all'
     ? [MODEL_TYPES.MAYANK, MODEL_TYPES.YASH_AMOUNT, MODEL_TYPES.YASH_RATIO]
     : [selectedModel];
@@ -29,16 +28,16 @@ const ModelResults = ({ results, testMode, selectedModel }) => {
   return (
     <div className="space-y-6 mb-8">
       <h2 className="text-2xl font-bold text-gray-900">Model Results</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {modelsToDisplay.map(modelType => {
+        {modelsToDisplay.map((modelType) => {
           const modelResult = results[modelType];
           if (!modelResult) return null;
-          
+
           const { is_fraud, probability, model_name, features_used } = modelResult;
           const statusColor = getFraudStatusColor(is_fraud, probability);
           const probabilityColor = getProgressBarColor(probability);
-          
+
           return (
             <div 
               key={modelType}
@@ -49,7 +48,7 @@ const ModelResults = ({ results, testMode, selectedModel }) => {
                   <h3 className="text-lg font-semibold text-gray-900">{model_name}</h3>
                   {getFraudStatusIcon(is_fraud, probability)}
                 </div>
-                
+
                 <div className={`rounded-md p-3 mb-4 ${statusColor} flex items-center justify-between`}>
                   <span className="font-medium">
                     {is_fraud ? 'Fraud Detected' : 'No Fraud Detected'}
@@ -58,7 +57,7 @@ const ModelResults = ({ results, testMode, selectedModel }) => {
                     Using {features_used} features
                   </span>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Fraud Probability</span>
@@ -72,7 +71,7 @@ const ModelResults = ({ results, testMode, selectedModel }) => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="border-t border-gray-100 p-4 bg-gray-50">
                 <button
                   className="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium"

@@ -1,135 +1,87 @@
-import xgboost from 'xgboost';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+const API_BASE_URL = 'http://localhost:8000'; // Update if deployed elsewhere
 
-// Get __dirname equivalent in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load the XGBoost models
-const loadModel = async (modelPath) => {
-  try {
-    const model = new xgboost.Booster();
-    await model.loadModel(modelPath);
-    return model;
-  } catch (error) {
-    console.error(`Error loading model from ${modelPath}:`, error);
-    throw error;
-  }
-};
-
-// Model configurations
+// Model configurations (for metadata only)
 const models = {
-  'mayank': {
-    name: 'Mayank Model',
-    features: [
-      "IP_Address_Flag", "Previous_Fraudulent_Activity", "Daily_Transaction_Count",
-      "Failed_Transaction_Count_7d", "Account_Age", "Transaction_Distance", "Is_Weekend",
-      "IsNight", "Time_Since_Last_Transaction", "Distance_Avg_Transaction_7d",
-      "Transaction_To_Balance_Ratio"
-    ],
-    feature_types: ["int", "int", "int", "int", "int", "float", "int", "int", "int", "float", "float"],
-    model: null
+  mayank: {
+    name: 'Mayank Model'
   },
-  'yash_amount': {
-    name: 'Yash with Amount Model',
-    features: [
-      "Transaction_Amount", "IP_Address_Flag", "Previous_Fraudulent_Activity",
-      "Daily_Transaction_Count", "Avg_Transaction_Amount_7d", "Failed_Transaction_Count_7d",
-      "Transaction_Distance", "Avg_Transaction_Distance", "Monthly_Transaction_Count",
-      "Transaction_Location_Flag", "Suspicious_IP_Flag", "Multiple_Account_Login"
-    ],
-    feature_types: ["float", "int", "int", "int", "float", "int", "float", "float", "int", "int", "int", "int"],
-    model: null
+  yash_amount: {
+    name: 'Yash with Amount Model'
   },
-  'yash_ratio': {
-    name: 'Yash with Ratio Model',
-    features: [
-      "IP_Address_Flag", "Previous_Fraudulent_Activity", "Transaction_Amount_Ratio",
-      "Failed_Transaction_Rate", "Transaction_Distance_Ratio", "Transaction_Count_Ratio",
-      "Multiple_Account_Login", "Transaction_Location_Flag", "Suspicious_IP_Flag"
-    ],
-    feature_types: ["int", "int", "float", "float", "float", "float", "int", "int", "int"],
-    model: null
+  yash_ratio: {
+    name: 'Yash with Ratio Model'
   }
 };
 
-// Initialize models
-const initializeModels = async () => {
-  try {
-    for (const [modelType, modelConfig] of Object.entries(models)) {
-      const modelPath = path.join(__dirname, 'AI-models', `${modelType}.json`);
-      modelConfig.model = await loadModel(modelPath);
-    }
-    console.log('All models loaded successfully');
-  } catch (error) {
-    console.error('Error initializing models:', error);
-    throw error;
-  }
+// Map frontend field names to backend field names if needed
+// This mapping ensures field names match what the backend expects
+const fieldNameMapping = {
+  // Example: if your form has a field named differently than the backend expects
+  // 'frontendFieldName': 'backend_field_name'
+  'is_night': 'is_night',  // These are correctly named already
+  'ip_address_flag': 'ip_address_flag'
+  // Add any other fields that need explicit mapping
 };
 
-// Map form data fields to model feature names
-const formToModelFieldMap = {
-  ip_address_flag: "IP_Address_Flag",
-  previous_fraudulent_activity: "Previous_Fraudulent_Activity",
-  daily_transaction_count: "Daily_Transaction_Count",
-  failed_transaction_count_7d: "Failed_Transaction_Count_7d",
-  account_age: "Account_Age",
-  transaction_distance: "Transaction_Distance",
-  is_weekend: "Is_Weekend",
-  is_night: "IsNight",
-  time_since_last_transaction: "Time_Since_Last_Transaction",
-  distance_avg_transaction_7d: "Distance_Avg_Transaction_7d",
-  transaction_to_balance_ratio: "Transaction_To_Balance_Ratio",
-  transaction_amount: "Transaction_Amount",
-  avg_transaction_amount_7d: "Avg_Transaction_Amount_7d",
-  avg_transaction_distance: "Avg_Transaction_Distance",
-  monthly_transaction_count: "Monthly_Transaction_Count",
-  transaction_location_flag: "Transaction_Location_Flag",
-  suspicious_ip_flag: "Suspicious_IP_Flag",
-  multiple_account_login: "Multiple_Account_Login",
-  transaction_amount_ratio: "Transaction_Amount_Ratio",
-  failed_transaction_rate: "Failed_Transaction_Rate",
-  transaction_distance_ratio: "Transaction_Distance_Ratio",
-  transaction_count_ratio: "Transaction_Count_Ratio"
-};
-
-// Predict fraud using XGBoost model
+// Predict fraud using FastAPI backend
 export async function predictFraud(modelType, inputData) {
   const modelConfig = models[modelType];
-  if (!modelConfig || !modelConfig.model) {
-    throw new Error(`Model ${modelType} not found or not initialized`);
+  if (!modelConfig) {
+    throw new Error(`Model ${modelType} not found`);
   }
 
-  const features = modelConfig.features.map((feature, index) => {
-    const formField = Object.entries(formToModelFieldMap)
-      .find(([_, value]) => value === feature)?.[0];
-
-    if (formField === undefined) {
-      throw new Error(`Cannot map model feature ${feature} to a form field`);
+  // Convert data to the format expected by the backend
+  const processedData = {};
+  
+  for (const key in inputData) {
+    let value = inputData[key];
+    
+    // Skip null or undefined values
+    if (value === null || value === undefined) {
+      console.warn(`Skipping null or undefined value for field: ${key}`);
+      continue;
     }
 
-    let value = inputData[formField];
-
+    // Convert booleans to integers (1/0)
     if (typeof value === 'boolean') {
       value = value ? 1 : 0;
     }
+    
+    // Use the mapped field name if it exists, otherwise use the original key
+    // This ensures field names match what the backend expects
+    const backendFieldName = fieldNameMapping[key] || key.toLowerCase();
+    processedData[backendFieldName] = value;
+  }
 
-    const featureType = modelConfig.feature_types[index];
-    return featureType === 'float' ? parseFloat(value) : parseInt(value);
+  // Log the data being sent to the API
+  console.log(`Sending data to model ${modelType}:`, {
+    model_name: modelConfig.name,
+    features_used: Object.keys(processedData).length,
+    fields: processedData
   });
 
   try {
-    const dmat = await xgboost.DMatrix.fromArray(features);
-    const predictions = await modelConfig.model.predict(dmat);
-    const probability = predictions[0];
+    const response = await fetch(`${API_BASE_URL}/predict/${modelType}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(processedData)
+    });
 
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`API error: ${response.status} - ${err}`);
+    }
+
+    const result = await response.json();
+
+    // Log the result for debugging
+    console.log("Prediction result:", result);
+console.log(result.is_fraud)
     return {
-      is_fraud: probability > 0.5,
-      probability,
+      is_fraud: result.is_fraud,
+      probability: result.probability,
       model_name: modelConfig.name,
-      features_used: modelConfig.features.length
+      features_used: Object.keys(processedData).length
     };
   } catch (error) {
     console.error(`Error predicting with model ${modelType}:`, error);
@@ -137,8 +89,4 @@ export async function predictFraud(modelType, inputData) {
   }
 }
 
-// Load models immediately
-await initializeModels();
-
-// Export models if needed
-export { models  };
+export { models };
