@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true, required: true },
   full_name: String,
   gender: String,
-  pan_card: { type: String, unique: true, required: false },
+  pan_card: { type: String, required: false },
   balance: { type: Number, default: 50000 }, // 💰 Added balance field
   mpin: { 
     type: String, 
