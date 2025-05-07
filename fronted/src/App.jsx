@@ -12,6 +12,7 @@ import SignupForm from "./components/Signup";
 import HomePage from "./pages/Home.page";
 import AdminDashboard from "./pages/AdminDashBoard";
 import Layout from "./components/Layout";
+import ProfileCard from "./pages/Profile/ProfileCard";
 function App() {
   return (
     <Router>
@@ -24,6 +25,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/profile" element={<ProfileCard/>}/>
           </Route>
 
           {/* Private Layout */}
