@@ -5,17 +5,18 @@ import Transaction from '../models/transaction.js';
 // @desc    Register new user
 export const registerUser = async (req, res) => {
   try {
-    const { username, full_name, password } = req.body;
+    const { username, full_name, mpin, gender, pan_card } = req.body;
+
     const existingUser = await User.findOne({ username });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-    const hashed_password = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, full_name, hashed_password });
+    // Save user directly (no password hashing since you're using mpin)
+    const newUser = new User({ username, full_name, mpin, gender, pan_card });
 
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
-    console.error("Register Error:", err); // See full error object
+    console.error("Register Error:", err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
@@ -23,16 +24,13 @@ export const registerUser = async (req, res) => {
 // @desc    Login user
 export const loginUser = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, mpin } = req.body;
 
     const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const isMatch = await bcrypt.compare(password, user.hashed_password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    if (user.mpin !== mpin) {
+      return res.status(400).json({ message: 'Invalid MPIN' });
     }
 
     const token = jwt.sign(
@@ -41,15 +39,14 @@ export const loginUser = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    // Remove hashed_password before sending user data
-    const { hashed_password, ...userData } = user.toObject();
-
+    const { mpin: _, ...userData } = user.toObject(); // Remove mpin
     return res.status(200).json({ user: userData, token });
   } catch (err) {
     console.error("Login error:", err);
     return res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 
 // @desc    Get all users (protected)

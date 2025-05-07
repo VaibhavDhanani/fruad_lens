@@ -1,15 +1,16 @@
 import api from "../utils/db";
-
-export const loginUser = async (username, password) => {
-  const response = await api.post("/users/login", { username, password });
+export const loginUser = async (username, mpin) => {
+  const response = await api.post("/users/login", { username, mpin });
   return response.data;
 };
 
-export const registerUser = async (name, username, password) => {
+export const registerUser = async (name, username, mpin, gender, pan_card) => {
   const response = await api.post("/users/register", {
-    name,
+    full_name: name,
     username,
-    password,
+    mpin,
+    gender,
+    pan_card
   });
   return response.data;
 };
