@@ -35,18 +35,23 @@ const Dashboard = () => {
     const fetchSummary = async () => {
       try {
         setLoading(true);
-        const data = await getTransactionSummary(token);
-        setSummary({ income: data.data.income, expense: data.data.expense });
+        const data = await getTransactionSummary(localStorage.user);
+        console.log("Fetched Summary Data: ", data); // Log the summary data
+        if (data.ok) {
+          setSummary({ income: data.data.income, expense: data.data.expense });
+        } else {
+          console.error("Failed to fetch transaction summary:", data.data);
+        }
       } catch (err) {
         console.error("Failed to fetch transaction summary:", err);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchSummary();
   }, []);
-
+  
   useEffect(() => {
     const loadFingerprint = async () => {
       const fp = await FingerprintJS.load();
@@ -93,10 +98,11 @@ const Dashboard = () => {
         setBalance(userRes.data.balance);
       }
 
-      const txRes = await getUserTransactions(token);
+      const txRes = await getUserTransactions(localStorage.user);
       if (txRes.ok) {
+        const user = JSON.parse(localStorage.user)
         const enhancedTxData = txRes.data.map((tx) => {
-          const isIncoming = tx.receiver._id === user._id; // If user is the receiver, it's an incoming transaction
+          const isIncoming = tx.counterparty._id === user._id; // If user is the receiver, it's an incoming transaction
           const status = getTransactionStatus(tx);
 
           return {
@@ -128,8 +134,7 @@ const Dashboard = () => {
   };
 
   const getTransactionStatus = (tx) => {
-    // Mock function to determine transaction status
-    // In a real app, this would come from the backend
+   
     if (tx.status) return tx.status;
 
     const hoursSinceCreated =
@@ -180,7 +185,7 @@ const Dashboard = () => {
     try {
       const payload = {
         ...formData,
-        senderId: user._id,
+        senderId: user,
         device_id: deviceId || "unknown",
         ip_address: ipAddress || "unknown",
         sender_lat: location.lat,

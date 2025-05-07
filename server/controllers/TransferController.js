@@ -14,17 +14,24 @@ export const transferMoney = async (req, res) => {
       beneficiary_lat,
       beneficiary_long
     } = req.body;
-
+  
+    console.log(req.body);
+  
     const amt = parseFloat(amount);
     if (!receiverUsername || !senderId || isNaN(amt) || amt <= 0) {
       return res.status(400).json({ message: "Invalid transaction details" });
     }
-
+  
+    // Parse senderId and extract username
+    const senderData = JSON.parse(senderId);
+    const senderUsername = senderData.username;
+  
+    // Find sender and receiver using their usernames
     const [sender, receiver] = await Promise.all([
-      User.findById(senderId),
+      User.findOne({ username: senderUsername }),
       User.findOne({ username: receiverUsername })
     ]);
-
+  
     if (!sender || !receiver) {
       return res.status(404).json({ message: "Receiver not found" });
     }
@@ -45,9 +52,10 @@ export const transferMoney = async (req, res) => {
 
     // Create single transaction from sender's perspective
     await Transaction.create({
-      sender: sender._id,
-      receiver: receiver._id,
+      user: sender._id,
+      counterparty: receiver._id,
       transaction_amount: amt,
+      transaction_type: 'DEBIT',
       description: description || '',
       device_id: device_id || '',
       ip_address: ip_address || '',
@@ -56,8 +64,12 @@ export const transferMoney = async (req, res) => {
       beneficiary_lat: beneficiary_lat || null,
       beneficiary_long: beneficiary_long || null,
       is_fraud: false,
-      status: "SUCCESS"
+      status: "SUCCESS",
+      transaction_hour: new Date().getHours(),
+      is_weekend: [0, 6].includes(new Date().getDay()),
+      beneficiary_account_number: receiver._id || ''
     });
+    
 
     return res.status(200).json({ message: "Transaction successful" });
 
@@ -67,24 +79,3 @@ export const transferMoney = async (req, res) => {
   }
 };
 
-
-export const getUserTransactions = async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const transactions = await Transaction.find({
-      $or: [
-        { sender: userId },
-        { receiver: userId }
-      ]
-    })
-      .populate("sender", "username full_name")
-      .populate("receiver", "username full_name")
-      .sort({ createdAt: -1 });
-
-    res.status(200).json(transactions);
-  } catch (err) {
-    console.error("Transaction fetch error:", err);
-    res.status(500).json({ message: "Could not fetch transactions" });
-  }
-};

@@ -1,4 +1,5 @@
 // services/transactionService.js
+import { use } from "react";
 import api from "../utils/db"; // api is likely an Axios instance
 
 export const transferAmount = async (payload,token) => {
@@ -20,33 +21,35 @@ export const transferAmount = async (payload,token) => {
 };
 
 
-export const getUserTransactions = async (token) => {
-    try {
-      const res = await api.get(`/transactions`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return { ok: true, data: res.data };
-    } catch (error) {
-      console.error("Transaction fetch error:", error);
-      return { ok: false, data: error.response?.data || { message: "Transaction fetch failed" } };
-    }
-  };
-
-  // src/services/transactionService.js
-
-export const getTransactionSummary = async (token) => {
+export const getUserTransactions = async (userId) => {
   try {
-    const res = await api.get(`users/user-summary`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
+    console.log(userId)
+    const user = JSON.parse(userId)
+    console.log(user._id)
+    const res = await api.get(`/transactions/${user._id}`);
     return { ok: true, data: res.data };
   } catch (error) {
-    console.error("Transaction Summary error:", error);
+    console.error("Transaction fetch error:", error);
+    return {
+      ok: false,
+      data: error.response?.data || { message: "Transaction fetch failed" },
+    };
+  }
+};
+
+
+  // src/services/transactionService.js
+  export const getTransactionSummary = async (userId) => {
+    try {
+      const user = JSON.parse(userId); // Ensure userId is parsed correctly
+      console.log("Frontend user ID: ", user._id); // Check the user ID being sent to the backend
+  
+      const res = await api.get(`users/user-summary/${user._id}`);
+  
+      return { ok: true, data: res.data };
+    } catch (error) {
+      console.error("Transaction Summary error:", error);
       return { ok: false, data: error.response?.data || { message: "Transaction Summary failed" } };
     }
-};
+  };
+  
