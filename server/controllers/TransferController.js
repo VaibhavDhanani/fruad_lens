@@ -13,34 +13,45 @@ export const transferMoney = async (req, res) => {
       sender_lat,
       sender_long,
       beneficiary_lat,
-      beneficiary_long,
-      mpin
+      beneficiary_long
     } = req.body;
+
 
     const amt = parseFloat(amount);
     if (!receiverUsername || !senderId || isNaN(amt) || amt <= 0) {
       return res.status(400).json({ message: "Invalid transaction details" });
     }
 
-    // Parse senderId if it's a string
-    const senderData = typeof senderId === "string" ? JSON.parse(senderId) : senderId;
+    // Parse senderId and extract username
+    const senderData = JSON.parse(senderId);
     const senderUsername = senderData.username;
 
+    // Find sender and receiver using their usernames
     const [sender, receiver] = await Promise.all([
       User.findOne({ username: senderUsername }),
       User.findOne({ username: receiverUsername })
     ]);
 
     if (!sender || !receiver) {
-      return res.status(404).json({ message: "Sender or receiver not found" });
+      return res.status(404).json({ message: "Receiver not found" });
     }
 
     if (sender._id.equals(receiver._id)) {
       return res.status(400).json({ message: "Cannot transfer to self" });
     }
 
-    // Prepare transaction details
-    const transactionData = {
+    if (sender.balance < amt) {
+      return res.status(400).json({ message: "Insufficient balance" });
+    }
+
+    // Update balances
+    sender.balance -= amt;
+    receiver.balance += amt;
+
+    await Promise.all([sender.save(), receiver.save()]);
+
+    // Create single transaction from sender's perspective
+    await Transaction.create({
       user: sender._id,
       counterparty: receiver._id,
       transaction_amount: amt,
@@ -52,43 +63,200 @@ export const transferMoney = async (req, res) => {
       sender_long: sender_long || null,
       beneficiary_lat: beneficiary_lat || null,
       beneficiary_long: beneficiary_long || null,
+      is_fraud: false,
+      status: "SUCCESS",
       transaction_hour: new Date().getHours(),
       is_weekend: [0, 6].includes(new Date().getDay()),
       beneficiary_account_number: receiver._id || ''
-    };
-
-    // Check MPIN
-    if (sender.mpin !== mpin) {
-      // Log failed transaction
-      await Transaction.create({
-        ...transactionData,
-        is_fraud: true,
-        status: "FAILED"
-      });
-      return res.status(401).json({ message: "Invalid MPIN" });
-    }
-
-    if (sender.balance < amt) {
-      return res.status(400).json({ message: "Insufficient balance" });
-    }
-
-    // Perform balance update
-    sender.balance -= amt;
-    receiver.balance += amt;
-
-    await Promise.all([sender.save(), receiver.save()]);
-
-    // Record successful transaction
-    await Transaction.create({
-      ...transactionData,
-      is_fraud: false,
-      status: "SUCCESS"
     });
+
 
     return res.status(200).json({ message: "Transaction successful" });
 
   } catch (error) {
     console.error("Transfer Error:", error);
+    return res.status(500).json({ message: "Something went wrong", error: error.message });
+  }
+};
+
+
+export const createTransaction = async (req, res) => {
+  try {
+    const {
+      senderId,
+      receiverUsername,
+      amount,
+      account_balance,
+      description,
+      device_id,
+      ip_address,
+      sender_lat,
+      sender_long,
+      beneficiary_lat,
+      beneficiary_long
+    } = req.body;
+
+    const amt = parseFloat(amount);
+    if (!receiverUsername || !senderId || isNaN(amt) || amt <= 0) {
+      return res.status(400).json({ message: "Invalid transaction details" });
+    }
+
+    const senderData = JSON.parse(senderId);
+    const senderUsername = senderData.username;
+
+    const [sender, receiver] = await Promise.all([
+      User.findOne({ username: senderUsername }),
+      User.findOne({ username: receiverUsername })
+    ]);
+
+    if (!sender || !receiver) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (sender._id.equals(receiver._id)) {
+      return res.status(400).json({ message: "Cannot transfer to self" });
+    }
+
+    const now = new Date();
+
+    const account_age = Math.floor((now - sender.createdAt) / (1000 * 60 * 60 * 24));
+
+    // Get the sender's last transaction to calculate time since last transaction
+    const lastTransaction = await Transaction.findOne({ user: sender._id }).sort({ timestamp: -1 }).limit(1);
+
+    // Calculate time since last transaction (in hours)
+    const timeSinceLastTx = lastTransaction
+      ? (new Date() - new Date(lastTransaction.timestamp)) / (1000 * 60 * 60) // time in hours
+      : 0;
+
+    // Calculate transaction to balance ratio
+    const transactionToBalanceRatio = account_balance > 0 ? amt / account_balance : 0;
+
+    // Calculate Haversine distance between sender and receiver
+    // const transactionDistance = calculateHaversineDistance(sender_lat, sender_long, beneficiary_lat, beneficiary_long);
+
+    // Calculate average transaction distance in the past 7 days
+    // Fetch all sender transactions in the last 7 days
+    const pastTransactions = await Transaction.find({
+      user: sender._id,
+      timestamp: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+    });
+
+    // Average distance of valid transactions
+    const past7dDebits = pastTransactions.filter(
+      tx => tx.transaction_type === 'DEBIT' && typeof tx.transaction_amount === 'number'
+    );
+    
+    const avgTransactionAmount7d = past7dDebits.length > 0
+      ? past7dDebits.reduce((acc, tx) => acc + tx.transaction_amount, 0) / past7dDebits.length
+      : 0;
+    
+      const distanceTxs = pastTransactions.filter(tx => typeof tx.transaction_distance === 'number');
+
+      const distance_avg_transaction_7d = distanceTxs.length > 0
+        ? distanceTxs.reduce((acc, tx) => acc + tx.transaction_distance, 0) / distanceTxs.length
+        : 0;
+      
+
+    // Count failed transactions in last 7 days
+    const failedTransactionCount7d = pastTransactions.filter(tx => tx.status === 'FAILED').length;
+
+    // Just create a pending transaction
+    const transaction = await Transaction.create({
+      user: sender._id,
+      counterparty: receiver._id,
+      transaction_amount: amt,
+      transaction_type: 'DEBIT',
+      description: description || '',
+      account_balance: account_balance,
+      device_id: device_id || '',
+      ip_address: ip_address || '',
+      sender_lat: sender_lat || null,
+      sender_long: sender_long || null,
+      beneficiary_lat: beneficiary_lat || null,
+      beneficiary_long: beneficiary_long || null,
+      // transaction_distance: transactionDistance,
+      avg_transaction_amount_7d: avgTransactionAmount7d, 
+      failed_transaction_count_7d:failedTransactionCount7d,
+      distance_avg_transaction_7d: distance_avg_transaction_7d,
+      time_since_last_transaction: timeSinceLastTx,
+      transaction_to_balance_ratio: transactionToBalanceRatio,
+      account_age:account_age,
+      is_fraud: false,
+      status: "PENDING",
+      transaction_hour: new Date().getHours(),
+      is_weekend: [0, 6].includes(new Date().getDay()),
+      is_night: new Date().getHours() >= 20 || new Date().getHours() < 6,  // Example: mark as night if the time is between 8PM and 6AM
+      beneficiary_account_number: receiver._id || ''
+    });
+
+    return res.status(200).json({
+      message: "Transaction created, pending authorization",
+      transactionId: transaction._id
+    });
+
+  } catch (error) {
+    console.error("Create Transaction Error:", error);
+    return res.status(500).json({ message: "Something went wrong", error: error.message });
+  }
+};
+
+
+export const authorizeTransaction = async (req, res) => {
+  try {
+    const { transactionID } = req.params;
+    const {password} = req.body; // expecting raw 6-digit code
+    
+    // if (!password || typeof pin !== 'string' || !/^\d{6}$/.test(password)) {
+    //   return res.status(400).json({ message: "Invalid PIN format. Must be a 6-digit number." });
+    // }
+
+    const transaction = await Transaction.findById(transactionID);
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    if (transaction.status !== 'PENDING') {
+      return res.status(400).json({ message: "Transaction is not pending" });
+    }
+
+    const sender = await User.findById(transaction.user);
+    const receiver = await User.findById(transaction.counterparty);
+
+    if (!sender || !receiver) {
+      return res.status(404).json({ message: "User(s) not found" });
+    }
+
+    // Compare the raw PIN (stored in sender.transaction_pin)
+    if (sender.mpin !== password) {
+      transaction.status = 'FAILED';
+      await transaction.save();
+      return res.status(401).json({ message: "Incorrect PIN" });
+    }
+
+    // Check sufficient balance
+    if (sender.balance < transaction.transaction_amount) {
+      transaction.status = 'FAILED';
+      await transaction.save();
+      return res.status(400).json({ message: "Insufficient balance" });
+    }
+
+    // Update balances
+    sender.balance -= transaction.transaction_amount;
+    receiver.balance += transaction.transaction_amount;
+
+    await Promise.all([
+      sender.save(),
+      receiver.save()
+    ]);
+
+    transaction.status = 'SUCCESS';
+    await transaction.save();
+
+    return res.status(200).json({ message: "Transaction authorized and completed successfully" });
+
+  } catch (error) {
+    console.error("Authorize Transaction Error:", error);
     return res.status(500).json({ message: "Something went wrong", error: error.message });
   }
 };

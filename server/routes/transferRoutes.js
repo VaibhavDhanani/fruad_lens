@@ -1,5 +1,5 @@
 import express from 'express';
-import { transferMoney } from '../controllers/TransferController.js';
+import { transferMoney ,createTransaction,authorizeTransaction} from '../controllers/TransferController.js';
 import Transaction from '../models/transaction.js';
 const router = express.Router();
 import authMiddleware from '../middlewares/authMiddleware.js'
@@ -29,6 +29,7 @@ router.get('/:userId', async (req, res) => {
   }
 }
 );
+
 router.get('/', async (req, res) => {
   try {
     const transactions = await Transaction.find().populate('user counterparty');
@@ -61,5 +62,8 @@ router.patch('/:id/fraud', async (req, res) => {
 
 router.post('/transfer',authMiddleware, transferMoney);
 
+router.post('/initiate',authMiddleware, createTransaction);
+
+router.post(`/authorize/:transactionID`,authorizeTransaction);
 
 export default router;

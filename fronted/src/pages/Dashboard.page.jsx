@@ -11,13 +11,14 @@ import {
   Clock,
 } from "lucide-react";
 import {
-  transferAmount,
+  authorizeTransaction,
   getUserTransactions,
   getTransactionSummary,
+  createTransaction,
 } from "../services/Transaction.service";
 import { getUserInfo } from "../services/Auth.service";
 import UserBalanceCard from "./UserbalanceCard";
-
+import PasswordAuthorization from "../components/passwordModel";
 const Dashboard = () => {
   const { user, token } = useAuth();
   const [balance, setBalance] = useState(null);
@@ -29,6 +30,9 @@ const Dashboard = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [summary, setSummary] = useState({ income: 0, expense: 0 });
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [transactionId, setTransactionId] = useState(null);
+
 
   // Fetch security information
   useEffect(() => {
@@ -181,45 +185,72 @@ const Dashboard = () => {
   const handleTransfer = async (formData) => {
     setIsProcessing(true);
     setMessage({ text: "", type: "" });
-
+  
     try {
       const payload = {
         ...formData,
+        account_balance: balance,
         senderId: user,
         device_id: deviceId || "unknown",
         ip_address: ipAddress || "unknown",
         sender_lat: location.lat,
         sender_long: location.long,
-        beneficiary_lat: 0,
-        beneficiary_long: 0,
+        beneficiary_lat: 0,  // will be updated after password authorization
+        beneficiary_long: 0, // will be updated after password authorization
       };
-
-      const { ok, data } = await transferAmount(payload, token);
-
+  
+      const { ok, data } = await createTransaction(payload, token);
+  
       if (ok) {
         setMessage({
-          text: "Transaction successful! 🎉",
-          type: "success",
+          text: "Transaction created! Please enter your password to authorize the transfer.",
+          type: "info",
         });
-        fetchDashboardData();
-        return true;
+  
+        setTransactionId(data.transactionId);
+        setIsPasswordModalOpen(true);  // Open the password authorization modal
       } else {
         setMessage({
           text: data.message || "Transaction failed",
           type: "error",
         });
-        return false;
       }
     } catch (error) {
       setMessage({
         text: "Error occurred during transaction",
         type: "error",
       });
-      return false;
     } finally {
       setIsProcessing(false);
     }
   };
+
+  const handlePasswordAuthorization = async (password) => {
+    try {
+      const { ok } = await authorizeTransaction(transactionId, password, token);
+      if (ok) {
+        setMessage({
+          text: "Transaction authorized successfully! 🎉",
+          type: "success",
+        });
+        fetchDashboardData();
+        setIsPasswordModalOpen(false);  // Close the modal
+      } else {
+        setMessage({
+          text: "Invalid password. Please try again.",
+          type: "error",
+        });
+      }
+      return ok;
+    } catch (error) {
+      setMessage({
+        text: "Something went wrong. Please try again.",
+        type: "error",
+      });
+      return false;
+    }
+  };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -261,6 +292,13 @@ const Dashboard = () => {
           />
         </div>
       </div>
+          {/* Password Authorization Modal */}
+          {isPasswordModalOpen && (
+        <PasswordAuthorization
+          onSubmit={handlePasswordAuthorization}
+          onCancel={() => setIsPasswordModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

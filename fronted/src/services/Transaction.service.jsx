@@ -1,6 +1,40 @@
 // services/transactionService.js
-import { use } from "react";
 import api from "../utils/db"; // api is likely an Axios instance
+  export const authorizeTransaction =async(transactionID,password,token)=>{
+  try {
+    const res = await api.post(`/transactions/authorize/${transactionID}`, {password} ,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { ok: true, data: res.data };
+  } catch (error) {
+    console.error('Transfer service error:', error);
+    
+    if (error.response) {
+      return { ok: false, data: error.response.data };
+    }
+    return { ok: false, data: { message: "Network error" } };
+  }
+  };
+
+export const createTransaction = async (payload,token) => {
+  try {
+    const res = await api.post('/transactions/initiate', payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return { ok: true, data: res.data };
+  } catch (error) {
+    console.error('Transfer service error:', error);
+    
+    if (error.response) {
+      return { ok: false, data: error.response.data };
+    }
+    return { ok: false, data: { message: "Network error" } };
+  }
+};
 
 export const transferAmount = async (payload,token) => {
   try {

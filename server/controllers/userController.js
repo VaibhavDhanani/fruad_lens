@@ -76,11 +76,11 @@ export const getUserInfo = async (req, res) => {
 export const getSummary = async (req, res) => {
   try {
     const userid = req.params.userId;
-    console.log("Requested User ID: ", userid); // log user ID received from the URL
+    // console.log("Requested User ID: ", userid); // log user ID received from the URL
 
     const user = await User.findById(userid);
     if (!user) {
-      console.log("User not found");
+      // console.log("User not found");
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -92,7 +92,7 @@ export const getSummary = async (req, res) => {
       createdAt: { $gte: sevenDaysAgo }
     });
 
-    console.log("Transactions found:", transactions); // log the fetched transactions
+    // console.log("Transactions found:", transactions); // log the fetched transactions
 
     let income = 0;
     let expense = 0;
