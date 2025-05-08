@@ -71,3 +71,4 @@ websockets==15.0.1
 xgboost
 joblib
 shap
+pydantic
