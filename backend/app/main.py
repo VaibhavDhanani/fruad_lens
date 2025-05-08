@@ -267,7 +267,7 @@ def get_balanced_dataset(transactions: List[dict], balanced_ratio: float = 1.5) 
 
 
 # ML model endpoints
-@app.post("/retrain-model")
+@app.post("/fastapi/retrain-model")
 async def retrain_model(params: RetrainingParams):
     try:
         model_id = params.model_id
@@ -396,7 +396,7 @@ def log_model_update(model_id, version, num_transactions, num_fraud):
     log_path = os.path.join(model_dir, "model_updates.log")
     with open(log_path, "a") as f:
         f.write(json.dumps(log_entry) + "\n")
-@app.get("/available-models")
+@app.get("/fastapi/available-models")
 async def get_available_models():
     try:
         available_models = []
@@ -425,7 +425,7 @@ async def get_available_models():
 
 
 # Activate a specific model version
-@app.post("/activate-model")
+@app.post("/fastapi/activate-model")
 async def activate_model(model_data: dict = Body(...)):
     try:
         model_id = model_data.get("model_id")
@@ -453,7 +453,7 @@ async def activate_model(model_data: dict = Body(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/predict/{model_key}")
+@app.post("/fastapi/predict/{model_key}")
 async def predict_endpoint(model_key: str, request: Request):
     # Get the raw request body
     raw_body = await request.body()
@@ -529,12 +529,12 @@ def predict(model_key: str, input_data: InputData):
 
 
 # Routes from the second main.py
-@app.get("/", tags=["Status"])
+@app.get("/fastapi", tags=["Status"])
 def index(current_user: User = Security(get_current_user, scopes=[])):
     return {"msg": "server is running"}
 
 
-@app.get("/graph")
+@app.get("/fastapi/graph")
 def test_neo4j_connection():
     query_create = """
     MERGE (u:User {user_id: 1, name: 'Test User'})
