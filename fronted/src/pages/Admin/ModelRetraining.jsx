@@ -209,13 +209,7 @@ const ModelRetraining = () => {
                   <p className="text-gray-700"><span className="font-medium">Fraud Transactions:</span> {result.num_fraud}</p>
                   <p className="text-gray-700"><span className="font-medium">Non-Fraud Transactions:</span> {result.num_non_fraud}</p>
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-700 mb-2">Model Performance:</h3>
-                  <p className="text-gray-700"><span className="font-medium">Accuracy:</span> {(result.metrics.accuracy * 100).toFixed(2)}%</p>
-                  <p className="text-gray-700"><span className="font-medium">Precision:</span> {(result.metrics.precision * 100).toFixed(2)}%</p>
-                  <p className="text-gray-700"><span className="font-medium">Recall:</span> {(result.metrics.recall * 100).toFixed(2)}%</p>
-                  <p className="text-gray-700"><span className="font-medium">F1 Score:</span> {(result.metrics.f1_score * 100).toFixed(2)}%</p>
-                </div>
+                
               </div>
               <div className="mt-4">
                 <button

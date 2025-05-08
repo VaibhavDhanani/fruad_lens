@@ -7,7 +7,7 @@ import { MODEL_TYPES } from './types';
 
 const FraudDetectionPortal = () => {
   const [activeTab, setActiveTab] = useState('all');
-  const [selectedModel, setSelectedModel] = useState(MODEL_TYPES.MAYANK);
+  const [selectedModel, setSelectedModel] = useState(MODEL_TYPES.XGB_11);
   const [testResults, setTestResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,10 +18,17 @@ const FraudDetectionPortal = () => {
     setError(null);
     try {
       console.log("➡️ Making request to backend...");
-    
+    let model = "MAYANK";
+    if(selectedModel===MODEL_TYPES.XGB_11){
+      model = "MAYANK";
+    }else if(selectedModel===MODEL_TYPES.XGB_12){
+      model = "YASH_AMOUNT";
+    }else if(selectedModel===MODEL_TYPES.XGB_9){
+      model = "YASH_RATIO";
+    }
       const endpoint = activeTab === 'all' 
         ? 'http://localhost:5000/api/models/test-all-models' 
-        : `http://localhost:5000/api/models/test-model/${selectedModel}`;
+        : `http://localhost:5000/api/models/test-model/${model}`;
     
       console.log("🔗 Endpoint:", endpoint);
       console.log("📤 Form data:", formData);
@@ -109,9 +116,10 @@ const FraudDetectionPortal = () => {
                 onChange={(e) => setSelectedModel(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               >
-                <option value={MODEL_TYPES.MAYANK}>Mayank Model</option>
-                <option value={MODEL_TYPES.YASH_AMOUNT}>Yash with Amount Model</option>
-                <option value={MODEL_TYPES.YASH_RATIO}>Yash with Ratio Model</option>
+                <option value={MODEL_TYPES.XGB_11}>XGB 11</option>
+<option value={MODEL_TYPES.XGB_12}>XGB 12</option>
+<option value={MODEL_TYPES.XGB_9}>XGB 9</option>
+
               </select>
             </div>
           )}
@@ -180,15 +188,7 @@ const FraudDetectionPortal = () => {
         )
       )}
 
-      <div className="mt-12 bg-yellow-50 border border-yellow-100 rounded-lg p-4 flex items-start space-x-3 transition-all duration-300 hover:bg-yellow-100">
-        <AlertTriangle className="h-5 w-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-        <div>
-          <h3 className="text-sm font-medium text-yellow-800">Model Retraining Available Soon</h3>
-          <p className="mt-1 text-sm text-yellow-700">
-            The ability to retrain models with new data will be available in a future update.
-          </p>
-        </div>
-      </div>
+     
     </div>
   );
 };

@@ -124,9 +124,10 @@ const ModelTestingForm = ({ onSubmit, testMode, selectedModel, isLoading }) => {
       </div>
 
       {/* Mayank model parameters */}
-      {(testMode === 'all' || selectedModel === MODEL_TYPES.MAYANK) && (
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Mayank Model Parameters</h3>
+      {(testMode === 'all' || selectedModel === MODEL_TYPES.XGB_11) && (
+  <div className="space-y-6">
+    <h3 className="text-lg font-medium text-gray-900 border-b pb-2">XGB 11 Model Parameters</h3>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {renderInput('account_age', 'Account Age (days)', { min: 1 })}
             {renderInput('is_weekend', 'Is Weekend', { type: 'checkbox' })}
@@ -144,9 +145,10 @@ const ModelTestingForm = ({ onSubmit, testMode, selectedModel, isLoading }) => {
       )}
 
       {/* Yash Amount model parameters */}
-      {(testMode === 'all' || selectedModel === MODEL_TYPES.YASH_AMOUNT) && (
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Yash with Amount Model Parameters</h3>
+      {(testMode === 'all' || selectedModel === MODEL_TYPES.XGB_12) && (
+  <div className="space-y-6">
+    <h3 className="text-lg font-medium text-gray-900 border-b pb-2">XGB 12 Model Parameters</h3>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {renderInput('transaction_amount', 'Transaction Amount', { step: 0.01, min: 0 })}
             {renderInput('avg_transaction_amount_7d', 'Average Transaction Amount (Last 7 Days)', { step: 0.01, min: 0 })}
@@ -160,9 +162,10 @@ const ModelTestingForm = ({ onSubmit, testMode, selectedModel, isLoading }) => {
       )}
 
       {/* Yash Ratio model parameters */}
-      {(testMode === 'all' || selectedModel === MODEL_TYPES.YASH_RATIO) && (
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900 border-b pb-2">Yash with Ratio Model Parameters</h3>
+      {(testMode === 'all' || selectedModel === MODEL_TYPES.XGB_9) && (
+  <div className="space-y-6">
+    <h3 className="text-lg font-medium text-gray-900 border-b pb-2">XGB 9 Model Parameters</h3>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {renderInput('transaction_amount_ratio', 'Transaction Amount Ratio', { 
               type: 'range', 
