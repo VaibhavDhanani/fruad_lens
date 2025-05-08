@@ -197,3 +197,50 @@ export const detectDeviceAnomaly = async (transaction) => {
     await session.close();
   }
 };
+
+export const detectRingPattern = async (username) => {
+  const session = driver.session();
+  try {
+    const result = await session.run(
+      `
+      MATCH path = (a:User {username: $username})-[:SENT_TO*2..5]->(a)
+      RETURN path LIMIT 5
+      `,
+      { username }
+    );
+
+    const isRingPattern = result.records.length > 0;
+    console.log(`[Neo4j] Ring pattern detected for ${username}: ${isRingPattern ? 'POTENTIAL FRAUD' : 'CLEAN'}`);
+    return isRingPattern;
+  } catch (error) {
+    console.error(`[Neo4j Error] Ring pattern detection failed for ${username}:`, error);
+    return false;
+  } finally {
+    await session.close();
+  }
+};
+
+// Star Pattern Detection
+export const detectStarPattern = async (username, threshold = 5) => {
+  const session = driver.session();
+  try {
+    const result = await session.run(
+      `
+      MATCH (center:User {username: $username})-[r:SENT_TO]->(spoke:User)
+      WITH center, count(r) AS connections
+      WHERE connections > $threshold
+      RETURN center, connections
+      `,
+      { username, threshold }
+    );
+
+    const isStarPattern = result.records.length > 0;
+    console.log(`[Neo4j] Star pattern detected for ${username}: ${isStarPattern ? 'POTENTIAL FRAUD' : 'CLEAN'}`);
+    return isStarPattern;
+  } catch (error) {
+    console.error(`[Neo4j Error] Star pattern detection failed for ${username}:`, error);
+    return false;
+  } finally {
+    await session.close();
+  }
+};
