@@ -13,7 +13,7 @@ const Navbar = () => {
         <Link to="/">
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">SecureWallet</span>
+            <span className="text-xl font-bold">FruadLens</span>
           </div>
         </Link>
         <div className="flex items-center gap-4">
