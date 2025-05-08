@@ -9,12 +9,12 @@ import FraudPredictionFrom from "./components/FraudPredictionForm";
 import LoginForm from "./components/Login";
 import SignupForm from "./components/Signup";
 // import Home from './pages/Home';
-import HomePage from "./pages/Home.page";
 import AdminDashboard from "./pages/AdminDashBoard";
 import Layout from "./components/Layout";
 import ProfileCard from "./pages/Profile/ProfileCard";
 import FraudDetectionPortal from "./pages/Admin/FruadDetectionPortal";
 import ModelRetraining from "./pages/Admin/ModelRetraining";
+import HomePage from "./pages/Home";
 function App() {
   return (
     <Router>
