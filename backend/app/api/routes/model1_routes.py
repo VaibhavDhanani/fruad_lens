@@ -18,22 +18,22 @@ iso_forest = joblib.load("isolation_forest_model.pkl")
 # Feature columns for XGBoost
 FEATURE_COLUMNS = [
     "IP_Address_Flag",
-    "Suspicious_IP_Flag",
     "Previous_Fraudulent_Activity",
     "Daily_Transaction_Count",
     "Failed_Transaction_Count_7d",
     "Account_Age",
+    "Transaction_Distance",
     "Is_Weekend",
     "IsNight",
     "Time_Since_Last_Transaction",
-    "Distance_From_Distance_Avg_7d",
+    "Distance_Avg_Transaction_7d",
     "Transaction_To_Balance_Ratio"
 ]
 
-# Optional: You can define common columns separately if needed
+
+
 class TransactionInput(BaseModel):
     IP_Address_Flag: int
-    Suspicious_IP_Flag: int
     Previous_Fraudulent_Activity: int
     Daily_Transaction_Count: int
     Failed_Transaction_Count_7d: int
@@ -42,12 +42,14 @@ class TransactionInput(BaseModel):
     Is_Weekend: int
     IsNight: int
     Time_Since_Last_Transaction: int
-    Distance_Avg_Transaction_7d: float  # Used by Isolation Forest?
+    Distance_Avg_Transaction_7d: float
     Transaction_To_Balance_Ratio: float
 
 @router.post("/predict")
 def predict_fraud(data: TransactionInput):
     input_dict = data.dict()
+    input_dict["Transaction_Distance"] = input_dict["Distance_From_Distance_Avg_7d"]
+    del input_dict["Distance_From_Distance_Avg_7d"]  # Remove old field
 
     # For XGBoost prediction
     xgb_df = pd.DataFrame([input_dict], columns=FEATURE_COLUMNS)
