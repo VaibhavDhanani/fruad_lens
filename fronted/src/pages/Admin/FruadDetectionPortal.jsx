@@ -18,13 +18,13 @@ const FraudDetectionPortal = () => {
     setError(null);
     try {
       console.log("➡️ Making request to backend...");
-    let model = "MAYANK";
+    let model = "mayank";
     if(selectedModel===MODEL_TYPES.XGB_11){
-      model = "MAYANK";
+      model = "mayank";
     }else if(selectedModel===MODEL_TYPES.XGB_12){
-      model = "YASH_AMOUNT";
+      model = "yash_amount";
     }else if(selectedModel===MODEL_TYPES.XGB_9){
-      model = "YASH_RATIO";
+      model = "yash_ratio";
     }
       const endpoint = activeTab === 'all' 
         ? 'http://13.127.98.0/api/models/test-all-models' 

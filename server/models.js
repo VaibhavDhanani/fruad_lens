@@ -61,7 +61,7 @@ export async function predictFraud(modelType, inputData) {
   });
 
   try {
-    const response = await fetch(`${API_BASE_URL}/prhttp:edict/${modelType}`, {
+    const response = await fetch(`${API_BASE_URL}/predict/${modelType}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(processedData)
