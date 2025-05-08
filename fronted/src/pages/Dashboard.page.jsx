@@ -193,7 +193,7 @@ const Dashboard = () => {
       const payload = {
         ...formData,
         account_balance: balance,
-        senderId: user,
+        senderId: JSON.parse(user)._id,
         device_id: deviceId || "unknown",
         ip_address: ipAddress || "unknown",
         sender_lat: location.lat,
@@ -212,15 +212,16 @@ const Dashboard = () => {
         const tx = data.transaction;
         const txdata = {
           'IP_Address_Flag': 0,
-          "Previous_Fraudulent_Activity": 0,
+          'Suspicious_IP_Flag':0,
+          "Previous_Fraudulent_Activity": tx.previous_fraudulent_activity,
           "Daily_Transaction_Count": tx.daily_transaction_count,
           "Failed_Transaction_Count_7d": tx.failed_transaction_count_7d,
           "Account_Age": tx.account_age,
-          "Transaction_Distance": 0,
+          "Distance_Avg_Transaction_7d": tx.distance_avg_transaction_7d,
           "Is_Weekend": tx.Is_weekend == true ? 1 : 0,
           "IsNight": tx.is_night = true ? 1 : 0,
           "Time_Since_Last_Transaction": parseInt(tx.time_since_last_transaction, 10),
-          "Distance_Avg_Transaction_7d": tx.distance_avg_transaction_7d,
+          "Distance_From_Distance_Avg_7d": tx.distance_avg_transaction_7d,
           "Transaction_To_Balance_Ratio": tx.transaction_to_balance_ratio,
         };
         const prediction = await predictTransaction(txdata);
@@ -228,16 +229,16 @@ const Dashboard = () => {
           await markTransactionAsFraud(tx._id, token);
           setMessage({
             text: `⚠️ Fraud detected! Transaction has been flagged and will not proceed.\n
-  Fraud Probability: ${(prediction.fraud_probability * 100).toFixed(2)}%\n
-  Most Affected Feature: ${prediction.most_affected_feature}\n`,
+        Fraud Probability: ${(prediction.fraud_probability * 100).toFixed(2)}%\n
+        Most Affected Feature: ${prediction.most_affected_feature}${prediction.is_anomaly ? '\n🔺 Looks suspicious (Anomaly detected)' : ''}`,
             type: "error",
           });
           return; // Do not proceed with password authorization
-        }else {
+        } else {
           setMessage({
-            text: `Fraud Probability: ${(prediction.fraud_probability * 100).toFixed(2)}`,
+            text: `Fraud Probability: ${(prediction.fraud_probability * 100).toFixed(2)}${prediction.is_anomaly ? '\n🔺 Looks suspicious (Anomaly detected)' : ''}`,
             type: "info",
-          })
+          });
         }
         setTransactionId(data.transaction._id);
         setIsPasswordModalOpen(true);  // Open the password authorization modal
