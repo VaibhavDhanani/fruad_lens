@@ -1,4 +1,4 @@
-const API_BASE_URL = '13.127.98.0'; // Update if deployed elsewhere
+const API_BASE_URL = 'http:13.127.98.0/fastapi'; // Update if deployed elsewhere
 
 // Model configurations (for metadata only)
 const models = {
@@ -61,7 +61,7 @@ export async function predictFraud(modelType, inputData) {
   });
 
   try {
-    const response = await fetch(`${API_BASE_URL}/predict/${modelType}`, {
+    const response = await fetch(`${API_BASE_URL}/prhttp:edict/${modelType}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(processedData)
