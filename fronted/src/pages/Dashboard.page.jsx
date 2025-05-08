@@ -193,7 +193,7 @@ const Dashboard = () => {
       const payload = {
         ...formData,
         account_balance: balance,
-        senderId: JSON.parse(user)._id,
+        senderId: user._id,
         device_id: deviceId || "unknown",
         ip_address: ipAddress || "unknown",
         sender_lat: location.lat,
@@ -201,7 +201,6 @@ const Dashboard = () => {
         beneficiary_lat: 0,  // will be updated after password authorization
         beneficiary_long: 0, // will be updated after password authorization
       };
-
       const { ok, data } = await createTransaction(payload, token);
 
       if (ok) {
