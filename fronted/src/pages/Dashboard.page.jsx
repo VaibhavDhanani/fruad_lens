@@ -228,9 +228,9 @@ const Dashboard = () => {
           await markTransactionAsFraud(tx._id, token);
           setMessage({
             text: `⚠️ Fraud detected! Transaction has been flagged and will not proceed.\n
-        Fraud Probability: ${(prediction.fraud_probability * 100).toFixed(2)}%\n
-        Most Affected Feature: ${prediction.most_affected_feature}${prediction.is_anomaly ? '\n🔺 Looks suspicious (Anomaly detected)' : ''}`,
-            type: "error",
+            Fraud Probability: ${(prediction.fraud_probability * 100).toFixed(2)}%\n
+            Most Affected Feature: ${prediction.most_affected_feature}${(prediction.is_anomaly && prediction.fraud_probability > 0.4) ? '\n🔺 Looks suspicious (Anomaly detected)' : ''}`,
+            type: "error",            
           });
           return; // Do not proceed with password authorization
         } else {
