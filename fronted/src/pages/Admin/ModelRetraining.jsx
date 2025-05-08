@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
-const API_URL = `http://${import.meta.env.VITE_BACKEND}:8000`;
+const API_URL = 'http://13.127.98.0'; // ensure http is included
 
 const ModelRetraining = () => {
   const [models, setModels] = useState([]);
@@ -11,10 +10,9 @@ const ModelRetraining = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('retrain'); // 'retrain' or 'manage'
+  const [activeTab, setActiveTab] = useState('retrain');
   const [selectedVersion, setSelectedVersion] = useState({});
 
-  // Fetch available models on component mount
   useEffect(() => {
     fetchModels();
   }, []);
@@ -22,13 +20,20 @@ const ModelRetraining = () => {
   const fetchModels = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/available-models`);
-      setModels(response.data.models);
-      if (response.data.models.length > 0) {
-        setSelectedModel(response.data.models[0].id);
+      const response = await fetch(`${API_URL}/available-models`);
+      const data = await response.json();
+      console.log(data);
+      if (Array.isArray(data.models)) {
+        setModels(data.models);
+        if (data.models.length > 0) {
+          setSelectedModel(data.models[0].id);
+        }
+      } else {
+        setModels([]);
+        setError('Invalid data format: models not found.');
       }
     } catch (err) {
-      setError('Failed to fetch models: ' + (err.response?.data?.detail || err.message));
+      setError('Failed to fetch models: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -41,16 +46,24 @@ const ModelRetraining = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/retrain-model`, {
-        model_id: selectedModel,
-        balanced_ratio: parseFloat(balancedRatio),
-        version_suffix: versionSuffix || null
+      const response = await fetch(`${API_URL}/retrain-model`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model_id: selectedModel,
+          balanced_ratio: parseFloat(balancedRatio),
+          version_suffix: versionSuffix || null
+        })
       });
-      setResult(response.data);
-      // Refresh models list after retraining
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.detail || 'Unknown error');
+
+      setResult(data);
       fetchModels();
     } catch (err) {
-      setError('Retraining failed: ' + (err.response?.data?.detail || err.message));
+      setError('Retraining failed: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -59,19 +72,24 @@ const ModelRetraining = () => {
   const handleActivateModel = async (modelId, version) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/activate-model`, {
-        model_id: modelId,
-        version: version
+      const response = await fetch(`${API_URL}/activate-model`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model_id: modelId, version })
       });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.detail || 'Unknown error');
+
       alert(`Model activated: ${modelId} version ${version}`);
-      fetchModels(); // Refresh model list
+      fetchModels();
     } catch (err) {
-      setError('Activation failed: ' + (err.response?.data?.detail || err.message));
+      setError('Activation failed: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
-
   const getModelById = (id) => {
     return models.find(model => model.id === id) || {};
   };
@@ -209,7 +227,13 @@ const ModelRetraining = () => {
                   <p className="text-gray-700"><span className="font-medium">Fraud Transactions:</span> {result.num_fraud}</p>
                   <p className="text-gray-700"><span className="font-medium">Non-Fraud Transactions:</span> {result.num_non_fraud}</p>
                 </div>
-                
+                <div>
+                  <h3 className="font-medium text-gray-700 mb-2">Model Performance:</h3>
+                  <p className="text-gray-700"><span className="font-medium">Accuracy:</span> {(result.metrics.accuracy * 100).toFixed(2)}%</p>
+                  <p className="text-gray-700"><span className="font-medium">Precision:</span> {(result.metrics.precision * 100).toFixed(2)}%</p>
+                  <p className="text-gray-700"><span className="font-medium">Recall:</span> {(result.metrics.recall * 100).toFixed(2)}%</p>
+                  <p className="text-gray-700"><span className="font-medium">F1 Score:</span> {(result.metrics.f1_score * 100).toFixed(2)}%</p>
+                </div>
               </div>
               <div className="mt-4">
                 <button

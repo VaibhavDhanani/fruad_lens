@@ -27,13 +27,13 @@ app = FastAPI()
 
 # CORS configuration
 origins = [
-    "http://localhost:5173",  # Frontend (e.g., Vite, React, etc.)
+     # Frontend (e.g., Vite, React, etc.)
     "*",  # From the first app - allow all origins
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -282,7 +282,7 @@ async def retrain_model(params: RetrainingParams):
         
         # Fetch all transactions from the database
         try:
-            response = requests.get('http://localhost:5000/api/transactions/')
+            response = requests.get('http://13.127.98.0/api/transactions/')
             if not response.ok:
                 raise Exception(f"Failed to fetch transactions: {response.status_code}")
             

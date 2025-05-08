@@ -27,8 +27,8 @@ const FraudDetectionPortal = () => {
       model = "YASH_RATIO";
     }
       const endpoint = activeTab === 'all' 
-        ? 'http://localhost:5000/api/models/test-all-models' 
-        : `http://localhost:5000/api/models/test-model/${model}`;
+        ? 'http://13.127.98.0/api/models/test-all-models' 
+        : `http://13.127.98.0/api/models/test-model/${model}`;
     
       console.log("🔗 Endpoint:", endpoint);
       console.log("📤 Form data:", formData);

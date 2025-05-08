@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000'; // Update if deployed elsewhere
+const API_BASE_URL = '13.127.98.0'; // Update if deployed elsewhere
 
 // Model configurations (for metadata only)
 const models = {

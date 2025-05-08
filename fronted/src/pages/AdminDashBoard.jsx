@@ -49,7 +49,7 @@ const AdminDashboard = () => {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/transactions/');
+      const response = await fetch('http://13.127.98.0/api/transactions/');
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
 
   const toggleFraudStatus = async (transactionId, currentStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/transactions/${transactionId}/fraud`, {
+      const response = await fetch(`http://13.127.98.0/api/transactions/${transactionId}/fraud`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_fraud: !currentStatus })
