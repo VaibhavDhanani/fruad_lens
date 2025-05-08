@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 import Transaction from '../models/transaction.js';
+import { addUserToNeo4j } from '../neo4jService.js';
 // @desc    Register new user
 export const registerUser = async (req, res) => {
   try {
@@ -13,6 +14,7 @@ export const registerUser = async (req, res) => {
     // Save user directly (no password hashing since you're using mpin)
     const newUser = new User({ username, full_name, mpin, gender, pan_card });
 
+    await addUserToNeo4j(newUser);
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
