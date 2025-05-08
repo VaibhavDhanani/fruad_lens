@@ -107,17 +107,12 @@ export const createTransaction = async (req, res) => {
     if (!receiverUsername || !senderId || isNaN(amt) || amt <= 0) {
       return res.status(400).json({ message: "Invalid transaction details" });
     }
-let senderData
-    if (typeof senderId === 'string') {
-      senderData = JSON.parse(senderId);
-    } else {
-      senderData = senderId; // Assuming senderId is already an object
-    }
 
-    const senderUsername = senderData.username;
+    // const senderData = JSON.parse(senderId);
+    // const senderUsername = senderData.username;
 
     const [sender, receiver] = await Promise.all([
-      User.findOne({ username: senderUsername }),
+      User.findOne({ _id: senderId }),
       User.findOne({ username: receiverUsername })
     ]);
 
@@ -131,7 +126,8 @@ let senderData
 
     const now = new Date();
 
-    const account_age = Math.floor((now - sender.createdAt) / (1000 * 60 * 60 * 24));
+    const account_age = Math.floor((now - sender.createdAt) / (1000 * 60 * 60 ));
+    
 
     // Get the sender's last transaction to calculate time since last transaction
     const lastTransaction = await Transaction.findOne({ user: sender._id }).sort({ timestamp: -1 }).limit(1);
@@ -143,9 +139,6 @@ let senderData
 
     // Calculate transaction to balance ratio
     const transactionToBalanceRatio = account_balance > 0 ? amt / account_balance : 0;
-
-    // Calculate Haversine distance between sender and receiver
-    // const transactionDistance = calculateHaversineDistance(sender_lat, sender_long, beneficiary_lat, beneficiary_long);
 
     // Calculate average transaction distance in the past 7 days
     // Fetch all sender transactions in the last 7 days
@@ -160,8 +153,10 @@ let senderData
     );
     
     const avgTransactionAmount7d = past7dDebits.length > 0
-      ? past7dDebits.reduce((acc, tx) => acc + tx.transaction_amount, 0) / past7dDebits.length
-      : 0;
+    ? past7dDebits.reduce((acc, tx) => acc + tx.transaction_amount, 0) / past7dDebits.length
+    : 0;
+
+    const transactionDistance = Math.abs(amount- avgTransactionAmount7d);
     
       const distanceTxs = pastTransactions.filter(tx => typeof tx.transaction_distance === 'number');
 
@@ -187,7 +182,7 @@ let senderData
       sender_long: sender_long || null,
       beneficiary_lat: beneficiary_lat || null,
       beneficiary_long: beneficiary_long || null,
-      // transaction_distance: transactionDistance,
+      transaction_distance: transactionDistance,
       avg_transaction_amount_7d: avgTransactionAmount7d, 
       failed_transaction_count_7d:failedTransactionCount7d,
       distance_avg_transaction_7d: distance_avg_transaction_7d,
