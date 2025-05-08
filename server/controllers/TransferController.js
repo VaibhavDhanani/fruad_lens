@@ -1,6 +1,6 @@
 import User from "../models/user.js";
 import Transaction from "../models/transaction.js";
-import { addTransactionToNeo4j,detectDeviceAnomaly,detectGeoAnomaly,detectVelocityAnomaly } from "../neo4jService.js";
+import { addTransactionToNeo4j,detectDeviceAnomaly,detectGeoAnomaly,detectVelocityAnomaly, detectRingPattern, detectStarPattern } from "../neo4jService.js";
 export const transferMoney = async (req, res) => {
   try {
     const {
@@ -213,9 +213,11 @@ export const createTransaction = async (req, res) => {
       const velocityAnomaly = await detectVelocityAnomaly(transactionData);
       const geoAnomaly = await detectGeoAnomaly(transactionData);
       const deviceAnomaly = await detectDeviceAnomaly(transactionData);
+      const ringPatternAnomaly = await detectRingPattern(sender.username);
+      const starPatternAnomaly = await detectStarPattern(sender.username, 5);
 
       // If any anomaly is detected, mark the transaction for review
-      const isFraudSuspected = velocityAnomaly || geoAnomaly || deviceAnomaly;
+      const isFraudSuspected = velocityAnomaly || geoAnomaly || deviceAnomaly || ringPatternAnomaly || starPatternAnomaly;
       
       if (isFraudSuspected) {
         // Update transaction status to indicate fraud review needed
