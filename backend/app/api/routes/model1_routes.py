@@ -6,7 +6,7 @@ import xgboost as xgb
 import shap
 import joblib  # <-- To load Isolation Forest model
 
-router = APIRouter(prefix="/model1", tags=["Model"])
+router = APIRouter(prefix="/fastapi/model1", tags=["Model"])
 
 # Load XGBoost model
 booster = xgb.Booster()
