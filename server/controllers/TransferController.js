@@ -340,6 +340,7 @@ export const markFraud = async (req, res) => {
     }
 
     transaction.status = "FRAUD";
+    transaction.is_fraud=1;
     await transaction.save();
 
     res.status(200).json({ message: "Transaction marked as fraud", transaction });

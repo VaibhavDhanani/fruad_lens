@@ -25,7 +25,7 @@ const ProfileCard = () => {
     setIsUpdating(true);
   
     try {
-      const response = await fetch('http://localhost:5000/api/users/update-pan', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND}/api/users/update-pan`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: user.username, pan_card: panNumber })
@@ -54,7 +54,7 @@ const handleGenderUpdate = async (selectedGender) => {
   setIsUpdating(true);
 
   try {
-    const response = await fetch('http://localhost:5000/api/users/update-gender', {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND}/api/users/update-gender`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: user.username, gender: selectedGender })

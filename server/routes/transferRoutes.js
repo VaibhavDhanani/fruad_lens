@@ -40,6 +40,15 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+
+router.post('/transfer',authMiddleware, transferMoney);
+
+router.post('/initiate',authMiddleware, createTransaction);
+
+router.post(`/authorize/:transactionID`,authorizeTransaction);
+router.put('/transaction/:id',authMiddleware, markFraud);
+
 router.patch('/:id/fraud', async (req, res) => {
   const { id } = req.params;
   const { is_fraud } = req.body;
@@ -58,13 +67,4 @@ router.patch('/:id/fraud', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
-
-router.post('/transfer',authMiddleware, transferMoney);
-
-router.post('/initiate',authMiddleware, createTransaction);
-
-router.post(`/authorize/:transactionID`,authorizeTransaction);
-router.put('/transaction/:id',authMiddleware, markFraud);
-
 export default router;
