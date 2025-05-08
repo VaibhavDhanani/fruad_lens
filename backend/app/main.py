@@ -27,7 +27,8 @@ app = FastAPI()
 
 # CORS configuration
 origins = [
-     # Frontend (e.g., Vite, React, etc.)
+    "http://localhost:5173",
+    "http://ec2-13-127-98-0.ap-south-1.compute.amazonaws.com",
     "*",  # From the first app - allow all origins
 ]
 
