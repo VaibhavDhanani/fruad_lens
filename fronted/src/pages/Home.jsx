@@ -40,7 +40,6 @@ import {
   
   export default function HomePage() {
     const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  
     return (
       <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
         {/* Header */}
@@ -73,7 +72,7 @@ import {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </a>
                     <a 
-                      href="/docs" 
+                      href="/#" 
                       className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-6 py-3 font-medium transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800"
                     >
                       Learn More
@@ -395,7 +394,7 @@ import {
                       </p>
                       <div className="mt-4">
                         <a 
-                          href="/demo-wallet" 
+                          href="/dashboard" 
                           className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
                         >
                           Try Demo Wallet
@@ -556,7 +555,7 @@ import {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </a>
                     <a 
-                      href="/demo" 
+                      href="/dashboard" 
                       className="inline-flex items-center justify-center rounded-md border border-white px-6 py-3 text-white font-medium transition-colors hover:bg-blue-700"
                     >
                       Request Demo

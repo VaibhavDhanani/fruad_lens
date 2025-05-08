@@ -91,7 +91,7 @@ const Login = () => {
               </div>
 
               <div className="text-sm">
-                <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                <Link to="/#" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
                   Forgot MPIN?
                 </Link>
               </div>
