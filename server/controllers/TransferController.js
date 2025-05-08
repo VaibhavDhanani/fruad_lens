@@ -25,12 +25,12 @@ export const transferMoney = async (req, res) => {
     // Parse senderId and extract username
     let senderData;
 
-    if (typeof senderId === 'string') {
-      senderData = JSON.parse(senderId);
-    } else {
-      senderData = senderId; // Assuming senderId is already an object
-    }
-
+    // if (typeof senderId === 'string') {
+    //   senderData = JSON.parse(senderId);
+    // } else {
+    //   senderData = senderId; // Assuming senderId is already an object
+    // }
+    senderData = User.findOne({_id:senderId});
     const senderUsername = senderData.username;
 
     // Find sender and receiver using their usernames

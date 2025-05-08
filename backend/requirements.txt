@@ -72,3 +72,4 @@ xgboost
 joblib
 shap
 pydantic
+requests
