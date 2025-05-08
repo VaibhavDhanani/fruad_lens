@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = 'http://13.127.98.0'; // ensure http is included
+const API_URL = 'http://13.127.98.0/fastapi'; // ensure http is included
 
 const ModelRetraining = () => {
   const [models, setModels] = useState([]);
