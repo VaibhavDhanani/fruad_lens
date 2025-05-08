@@ -1,6 +1,6 @@
 import User from "../models/user.js";
 import Transaction from "../models/transaction.js";
-import { addTransactionToNeo4j } from "../neo4jService.js";
+import { addTransactionToNeo4j,detectDeviceAnomaly,detectGeoAnomaly,detectVelocityAnomaly } from "../neo4jService.js";
 export const transferMoney = async (req, res) => {
   try {
     const {
@@ -197,17 +197,65 @@ export const createTransaction = async (req, res) => {
       beneficiary_account_number: receiver._id || ''
     });
 
-    await addTransactionToNeo4j({
-      _id: transaction._id,  // Include the _id field
-      senderUsername:sender.username,
-      receiverUsername,
+   
+    
+    const transactionData = {
+      _id: transaction._id,
+      senderUsername: sender.username,
       transaction_amount: amt,
-      description,
-      status: "PENDING",
+      transaction_distance: transactionDistance,
       device_id,
-      ip_address,
-      is_fraud: transaction.is_fraud || false  // Make sure to include this field
-    });
+      ip_address
+    };
+
+    try {
+      // Run anomaly detection in sequence (not parallel) to avoid session issues
+      const velocityAnomaly = await detectVelocityAnomaly(transactionData);
+      const geoAnomaly = await detectGeoAnomaly(transactionData);
+      const deviceAnomaly = await detectDeviceAnomaly(transactionData);
+
+      // If any anomaly is detected, mark the transaction for review
+      const isFraudSuspected = velocityAnomaly || geoAnomaly || deviceAnomaly;
+      
+      if (isFraudSuspected) {
+        // Update transaction status to indicate fraud review needed
+        transaction.status = "FRAUD";
+        transaction.is_fraud = true;
+        
+        // // Store which anomalies were detected
+        // transaction.anomalies = {
+        //   velocity: velocityAnomaly,
+        //   geo: geoAnomaly,
+        //   device: deviceAnomaly
+        // };
+        await addTransactionToNeo4j({
+          _id: transaction._id,  // Include the _id field
+          senderUsername: sender.username,
+          receiverUsername: receiver.username,
+          transaction_amount: amt,
+          description,
+          status: "PENDING",
+          device_id,
+          ip_address,
+          is_fraud: transaction.is_fraud || false  // Make sure to include this field
+        });
+        await transaction.save();
+        
+        return res.status(200).json({
+          message: "Transaction flagged for fraud review",
+          transaction: transaction,
+          anomalies: {
+            velocity: velocityAnomaly,
+            geo: geoAnomaly,
+            device: deviceAnomaly
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Anomaly detection error:", error);
+      // Don't fail the transaction if anomaly detection fails
+      // Just log the error and continue
+    }
     
     return res.status(200).json({
       message: "Transaction created, pending authorization",
