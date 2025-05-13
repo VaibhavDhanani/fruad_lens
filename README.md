@@ -24,7 +24,7 @@ FruadLens/
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository_url>
+git clone https://github.com/VaibhavDhanani/fruad_lens.git
 cd FruadLens
 ```
 
