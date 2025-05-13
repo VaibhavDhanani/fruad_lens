@@ -17,7 +17,6 @@ const ModelTestingForm = ({ onSubmit, testMode, selectedModel, isLoading }) => {
     onSubmit(formData);
   };
 
-  // Check if field is needed for the current testing mode
   const shouldShowField = (field) => {
     if (testMode === 'all') {
       return true;
@@ -26,7 +25,6 @@ const ModelTestingForm = ({ onSubmit, testMode, selectedModel, isLoading }) => {
     return selectedModel ? FIELD_TO_MODEL_MAP[field].includes(selectedModel) : false;
   };
 
-  // Helper to render different input types based on field type
   const renderInput = (field, label, options = {}) => {
     const { type = 'number', min, max, step, options: selectOptions } = options;
     
@@ -191,8 +189,7 @@ const ModelTestingForm = ({ onSubmit, testMode, selectedModel, isLoading }) => {
               max: 5, 
               step: 0.1 
             })}
-            {/* Transaction Location Flag and Suspicious IP Flag are shared with Yash Amount */}
-            {/* Multiple Account Login is shared with Yash Amount */}
+            
           </div>
         </div>
       )}

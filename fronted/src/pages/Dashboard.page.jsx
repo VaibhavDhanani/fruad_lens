@@ -306,7 +306,6 @@ const Dashboard = () => {
             />
           </div>
 
-          {/* Right column */}
           <div className="space-y-6">
             <SecurityInfo
               deviceId={deviceId}
@@ -316,7 +315,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Transaction history - full width */}
         <div className="mt-8">
           <TransactionHistory
             transactions={history}
@@ -325,7 +323,6 @@ const Dashboard = () => {
           />
         </div>
       </div>
-      {/* Password Authorization Modal */}
       {isPasswordModalOpen && (
         <PasswordAuthorization
           message={message}

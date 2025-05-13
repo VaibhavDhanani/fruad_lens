@@ -21,7 +21,6 @@ const LoginForm = () => {
     });
   };
 
-  // Validate mobile number (username)
   const validateMobile = (mobile) => {
     const mobileRegex = /^[6-9]\d{9}$/;
     return mobileRegex.test(mobile);
@@ -47,7 +46,6 @@ const LoginForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Here you would typically send the data to your backend
       console.log(formData);
       alert("Login successful!");
     }

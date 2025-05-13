@@ -12,7 +12,6 @@ const MpinVerificationDialog = ({ onConfirm, onCancel, isVerifying }) => {
         inputRefs.current[0].focus();
       }
       
-      // Prevent body scrolling when dialog is open
       document.body.style.overflow = 'hidden';
       return () => {
         document.body.style.overflow = 'auto';
@@ -46,10 +45,8 @@ const MpinVerificationDialog = ({ onConfirm, onCancel, isVerifying }) => {
         return;
       }
       
-      // Clear MPIN immediately for security
       setMpin(['', '', '', '', '', '']);
       
-      // Call the confirm function
       onConfirm(mpinString);
     };
   

@@ -5,31 +5,26 @@ import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 const ModelResults = ({ results, testMode, selectedModel }) => {
   const navigate = useNavigate();
 
-  // Define a mapping of model names to the display names
   const modelNameMapping = {
     "Mayank Model": "XGB 12",
     "Yash with Amount Model": "XGB 11",
     "Yash with Ratio Model": "XGB 9",
   };
 
-  // Dynamically get the model keys from the 'results' object
-  const modelsToDisplay = Object.keys(results); // Grab model keys dynamically
+  const modelsToDisplay = Object.keys(results);
 
-  // Function to get the fraud status color
   const getFraudStatusColor = (isFraud, probability) => {
     if (isFraud) return 'bg-red-50 border-red-200 text-red-700';
     if (probability > 0.3) return 'bg-yellow-50 border-yellow-200 text-yellow-700';
     return 'bg-green-50 border-green-200 text-green-700';
   };
 
-  // Function to get the fraud status icon
   const getFraudStatusIcon = (isFraud, probability) => {
     if (isFraud) return <XCircle className="h-6 w-6 text-red-500" />;
     if (probability > 0.3) return <AlertCircle className="h-6 w-6 text-yellow-500" />;
     return <CheckCircle className="h-6 w-6 text-green-500" />;
   };
 
-  // Function to get the progress bar color based on probability
   const getProgressBarColor = (probability) => {
     if (probability > 0.7) return 'bg-red-500';
     if (probability > 0.3) return 'bg-yellow-500';
@@ -68,8 +63,7 @@ const ModelResults = ({ results, testMode, selectedModel }) => {
                     {is_fraud ? 'Fraud Detected' : 'No Fraud Detected'}
                   </span>
                   <span className="text-sm opacity-75">
-                    {/* Optional: You could display the model key here if you want */}
-                    {/* {modelKey} */}
+                    
                   </span>
                 </div>
 

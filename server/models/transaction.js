@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const transactionSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // who performed the action
-  counterparty: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // optional
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  counterparty: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
   
   transaction_amount: { type: Number, required: true },
   transaction_type: { type: String, enum: ['DEBIT', 'CREDIT'], required: true },
@@ -32,8 +32,8 @@ const transactionSchema = new mongoose.Schema({
   sender_long: Number,
   beneficiary_lat: Number,
   beneficiary_long: Number,
-  transaction_distance: { type: Number }, // 🆕 Haversine distance between sender & beneficiary
-  distance_avg_transaction_7d: { type: Number, default: 0 }, // 🆕 average past distances
+  transaction_distance: { type: Number }, 
+  distance_avg_transaction_7d: { type: Number, default: 0 },
 
   is_fraud: { type: Boolean, default: false }
 }, { timestamps: true });

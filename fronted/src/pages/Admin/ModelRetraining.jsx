@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = 'http://13.127.98.0/fastapi'; // ensure http is included
+const API_URL = 'http://13.127.98.0/fastapi';
 
 const ModelRetraining = () => {
   const [models, setModels] = useState([]);
@@ -130,7 +130,6 @@ const ModelRetraining = () => {
         </div>
       )}
 
-      {/* Retrain Tab */}
       {activeTab === 'retrain' && (
         <>
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">

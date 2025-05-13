@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Send, User, DollarSign, MessageSquare, X } from 'lucide-react';
 import LoadingDots from '../pages/LoadingDots';
+import { authorizeTransaction } from '@/services/Transaction.service';
 const TransactionForm = ({ onSubmit, isProcessing, message }) => {
   const [form, setForm] = useState({
     receiverUsername: '',
@@ -28,7 +29,6 @@ const TransactionForm = ({ onSubmit, isProcessing, message }) => {
 
     setErrors(newErrors);
 
-    // Autofocus first invalid field
     if (Object.keys(newErrors).length > 0) {
       const firstErrorField = Object.keys(newErrors)[0];
       document.querySelector(`[name="${firstErrorField}"]`)?.focus();
@@ -53,25 +53,17 @@ const TransactionForm = ({ onSubmit, isProcessing, message }) => {
 
     if (!validateForm()) return;
 
-    // Step 1: Create the transaction
-    const createdTransactionId = await onSubmit(form); // should return ID
+    const createdTransactionId = await onSubmit(form);
     if (createdTransactionId) {
       setTransactionId(createdTransactionId);
       setShowPasswordPrompt(true);
       setForm({ receiverUsername: '', amount: '', description: '' });
     } else {
-      setShowMessage(true); // show error from message
+      setShowMessage(true); 
     }
   };
 
-  // const handleConfirmSubmit = async () => {
-  //   setShowConfirmation(false);
-  //   const success = await onSubmit(pendingForm);
-  //   if (success) {
-  //     setForm({ receiverUsername: '', amount: '', description: '' });
-  //   }
-  //   setShowMessage(true);
-  // };
+  
   const handlePasswordSubmit = async () => {
     if (!password.trim()) return;
 
@@ -81,7 +73,6 @@ const TransactionForm = ({ onSubmit, isProcessing, message }) => {
     setTransactionId(null);
 
     if (!success) {
-      // Handle failure: maybe show a toast or error
       setShowMessage(true);
     }
   };
@@ -218,7 +209,7 @@ const TransactionForm = ({ onSubmit, isProcessing, message }) => {
             )}
           </button>
 
-          {/* Message Box */}
+          
           {message.text && showMessage && (
             <div className={`relative py-2 px-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
               <button

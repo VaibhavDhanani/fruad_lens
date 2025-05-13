@@ -21,11 +21,9 @@ const PanCardForm = ({ initialValue = '', onSubmit, onCancel, isLoading }) => {
   };
 
   const handleChange = (e) => {
-    // Convert to uppercase
     const value = e.target.value.toUpperCase();
     setPanCard(value);
     
-    // Clear error when user starts typing again
     if (error) {
       setError('');
     }

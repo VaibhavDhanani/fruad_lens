@@ -5,22 +5,18 @@ const CompareModelsView = ({ results }) => {
   const [sortBy, setSortBy] = useState('model_name');
   const [sortDirection, setSortDirection] = useState('asc');
   
-  // Define a mapping of model names to the display names
   const modelNameMapping = {
     "Mayank Model": "XGB 12",
     "Yash with Amount Model": "XGB 11",
     "Yash with Ratio Model": "XGB 9",
   };
 
-  // Extract model results into a clean array for sorting/displaying
   const modelsArray = Object.entries(results).map(([modelType, data]) => ({
     modelType,
     ...data,
   }));
 
-  // Sort the models based on current sort settings
   const sortedModels = [...modelsArray].sort((a, b) => {
-    // Handle string vs number sorting
     if (sortBy === 'model_name') {
       return sortDirection === 'asc'
         ? a.model_name.localeCompare(b.model_name)
@@ -32,19 +28,15 @@ const CompareModelsView = ({ results }) => {
     }
   });
 
-  // Handle sort column click
   const handleSort = (column) => {
     if (sortBy === column) {
-      // Toggle direction if the same column clicked
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // New column, set to ascending
       setSortBy(column);
       setSortDirection('asc');
     }
   };
 
-  // Format probability for display
   const formatProbability = (probability) => {
     if (probability < 0.0001) {
       return probability.toExponential(4);
@@ -52,7 +44,6 @@ const CompareModelsView = ({ results }) => {
     return (probability * 100).toFixed(4) + '%';
   };
 
-  // Get color for fraud probability cell
   const getProbabilityColor = (probability) => {
     if (probability > 0.7) return 'text-red-600 bg-red-50';
     if (probability > 0.3) return 'text-yellow-600 bg-yellow-50';
@@ -138,7 +129,6 @@ const CompareModelsView = ({ results }) => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {sortedModels.map((model) => {
-              // Get the display model name from the mapping, or fallback to the original model name
               const displayModelName = modelNameMapping[model.model_name] || model.model_name;
               return (
                 <tr key={model.modelType} className="hover:bg-gray-50">

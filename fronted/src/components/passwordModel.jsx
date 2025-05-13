@@ -54,7 +54,6 @@ const PasswordAuthorization = ({ onSubmit, onCancel, message }) => {
           Transaction Authorization
         </h3>
 
-        {/* Fraud Probability Message */}
         {message?.text && (
           <div
             className={`mb-4 text-sm whitespace-pre-wrap text-center ${

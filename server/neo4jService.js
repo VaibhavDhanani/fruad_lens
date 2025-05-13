@@ -1,4 +1,3 @@
-// services/neo4jService.js
 import neo4j from 'neo4j-driver';
 import dotenv from 'dotenv';
 
@@ -9,8 +8,6 @@ const driver = neo4j.driver(
   neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD)
 );
 
-// Don't create a global session - create a new one for each function
-// This avoids "cannot run directly on a session with an open transaction" errors
 
 export const addUserToNeo4j = async (user) => {
   const session = driver.session();
@@ -100,7 +97,6 @@ export const detectVelocityAnomaly = async ({ senderUsername, transaction_amount
       { senderUsername }
     );
 
-    // Handle case when there are no records or invalid data
     if (result.records.length === 0 || !result.records[0].get('avg_amount') || !result.records[0].get('max_amount')) {
       console.log(`[Neo4j] No transaction history found for ${senderUsername}`);
       return false; // No anomaly if there's no history
@@ -110,7 +106,6 @@ export const detectVelocityAnomaly = async ({ senderUsername, transaction_amount
     const avgAmount = (typeof record.get('avg_amount') === 'number') ? record.get('avg_amount') : 0;
     const maxAmount = (typeof record.get('max_amount') === 'number') ? record.get('max_amount') : 0;
     console.log("avg amount:" +  avgAmount);
-    // Define your anomaly threshold here (only if we have transaction history)
     if (avgAmount > 0) {
       const isAnomaly = transaction_amount > 2 * avgAmount || 
                         (maxAmount > 0 && transaction_amount > 1.5 * maxAmount);
@@ -141,14 +136,12 @@ export const detectGeoAnomaly = async (transaction) => {
       }
     );
 
-    // Handle case when there are no records or no transaction_distance
     const avgDistance = result.records.length > 0 && result.records[0].get("avg_distance") 
       ? result.records[0].get("avg_distance") 
       : 0;
     
     const currentDistance = transaction.transaction_distance || 0;
 
-    // Only detect anomaly if we have history and a current distance
     if (avgDistance > 0 && currentDistance > 0) {
       const isFraud = currentDistance > avgDistance * 2; // Threshold for location anomaly
       console.log(`[Neo4j] Geo anomaly for ${transaction._id}: ${isFraud ? 'POTENTIAL FRAUD' : 'CLEAN'}`);
@@ -180,7 +173,6 @@ export const detectDeviceAnomaly = async (transaction) => {
     const knownDevices = result.records.length > 0 ? (result.records[0].get("known_devices") || []) : [];
     const knownIPs = result.records.length > 0 ? (result.records[0].get("known_ips") || []) : [];
 
-    // Only consider it fraud if we have history and new device/IP
     const hasHistory = knownDevices.length > 0 || knownIPs.length > 0;
     
     if (hasHistory && transaction.device_id && transaction.ip_address) {
@@ -192,7 +184,7 @@ export const detectDeviceAnomaly = async (transaction) => {
     return false;
   } catch (error) {
     console.error(`[Neo4j Error] Device anomaly detection failed for transaction ${transaction._id}:`, error);
-    return false; // Return false instead of throwing error
+    return false; 
   } finally {
     await session.close();
   }

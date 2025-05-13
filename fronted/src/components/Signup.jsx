@@ -112,7 +112,6 @@ const SignupForm = () => {
     });
   };
 
-  // Format PAN card input to uppercase
   const handlePanChange = (e) => {
     const value = e.target.value.toUpperCase();
     setFormData({
@@ -121,19 +120,16 @@ const SignupForm = () => {
     });
   };
 
-  // Validate mobile number (username)
   const validateMobile = (mobile) => {
     const mobileRegex = /^[6-9]\d{9}$/;
     return mobileRegex.test(mobile);
   };
 
-  // Validate email
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Validate password
   const validatePassword = (password) => {
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
@@ -149,13 +145,11 @@ const SignupForm = () => {
     );
   };
 
-  // Validate Aadhar card
   const validateAadhar = (aadhar) => {
     const digitsOnly = aadhar.replace(/\s/g, "");
     return digitsOnly.length === 12 && /^\d+$/.test(digitsOnly);
   };
 
-  // Validate PAN card
   const validatePan = (pan) => {
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
     return panRegex.test(pan);
@@ -236,7 +230,6 @@ const SignupForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateStep(step)) {
-      // Here you would typically send the data to your backend
       console.log(formData);
       alert("Registration submitted successfully!");
     }

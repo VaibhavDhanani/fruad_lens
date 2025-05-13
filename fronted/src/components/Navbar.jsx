@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/Auth.context";
 
 const Navbar = () => {
-  const { user, logout } = useAuth(); // Use context to get user and logout function
-
+  const { user, logout } = useAuth();
   return (
     <header className="border-b">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
@@ -19,8 +18,6 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           {user ? (
             <>
-              {/* User is logged in, show additional options */}
-              {/* <span className="text-black">Welcome, {user.username}</span> */}
               <Link to="/dashboard">
                 <Button variant="ghost">Dashboard</Button>
               </Link>
@@ -33,7 +30,6 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              {/* User is not logged in, show log in and sign up options */}
               <Link to="/login">
                 <Button variant="ghost">Log In</Button>
               </Link>

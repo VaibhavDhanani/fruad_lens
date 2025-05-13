@@ -22,18 +22,10 @@ export const transferMoney = async (req, res) => {
       return res.status(400).json({ message: "Invalid transaction details" });
     }
 
-    // Parse senderId and extract username
     let senderData;
-
-    // if (typeof senderId === 'string') {
-    //   senderData = JSON.parse(senderId);
-    // } else {
-    //   senderData = senderId; // Assuming senderId is already an object
-    // }
     senderData = User.findOne({_id:senderId});
     const senderUsername = senderData.username;
 
-    // Find sender and receiver using their usernames
     const [sender, receiver] = await Promise.all([
       User.findOne({ username: senderUsername }),
       User.findOne({ username: receiverUsername })
@@ -57,7 +49,6 @@ export const transferMoney = async (req, res) => {
 
     await Promise.all([sender.save(), receiver.save()]);
 
-    // Create single transaction from sender's perspective
     await Transaction.create({
       user: sender._id,
       counterparty: receiver._id,
@@ -108,9 +99,7 @@ export const createTransaction = async (req, res) => {
       return res.status(400).json({ message: "Invalid transaction details" });
     }
 
-    // const senderData = JSON.parse(senderId);
-    // const senderUsername = senderData.username;
-
+    
     const [sender, receiver] = await Promise.all([
       User.findOne({ _id: senderId }),
       User.findOne({ username: receiverUsername })
@@ -129,25 +118,20 @@ export const createTransaction = async (req, res) => {
     const account_age = Math.floor((now - sender.createdAt) / (1000 * 60 * 60 ));
     
 
-    // Get the sender's last transaction to calculate time since last transaction
     const lastTransaction = await Transaction.findOne({ user: sender._id }).sort({ timestamp: -1 }).limit(1);
 
-    // Calculate time since last transaction (in hours)
     const timeSinceLastTx = lastTransaction
-      ? (new Date() - new Date(lastTransaction.timestamp)) / (1000 * 60 * 60) // time in hours
+      ? (new Date() - new Date(lastTransaction.timestamp)) / (1000 * 60 * 60) 
       : 0;
 
-    // Calculate transaction to balance ratio
     const transactionToBalanceRatio = account_balance > 0 ? amt / account_balance : 0;
 
-    // Calculate average transaction distance in the past 7 days
-    // Fetch all sender transactions in the last 7 days
+  
     const pastTransactions = await Transaction.find({
       user: sender._id,
       timestamp: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
     });
 
-    // Average distance of valid transactions
     const past7dDebits = pastTransactions.filter(
       tx => tx.transaction_type === 'DEBIT' && typeof tx.transaction_amount === 'number'
     );
@@ -165,10 +149,8 @@ export const createTransaction = async (req, res) => {
         : 0;
       
 
-    // Count failed transactions in last 7 days
     const failedTransactionCount7d = pastTransactions.filter(tx => tx.status === 'FAILED').length;
 
-    // Just create a pending transaction
     const transaction = await Transaction.create({
       user: sender._id,
       counterparty: receiver._id,
@@ -209,27 +191,19 @@ export const createTransaction = async (req, res) => {
     };
 
     try {
-      // Run anomaly detection in sequence (not parallel) to avoid session issues
       const velocityAnomaly = await detectVelocityAnomaly(transactionData);
       const geoAnomaly = await detectGeoAnomaly(transactionData);
       const deviceAnomaly = await detectDeviceAnomaly(transactionData);
       const ringPatternAnomaly = await detectRingPattern(sender.username);
       const starPatternAnomaly = await detectStarPattern(sender.username, 5);
 
-      // If any anomaly is detected, mark the transaction for review
       const isFraudSuspected = velocityAnomaly || geoAnomaly || deviceAnomaly || ringPatternAnomaly || starPatternAnomaly;
       
       if (isFraudSuspected) {
-        // Update transaction status to indicate fraud review needed
         transaction.status = "FRAUD";
         transaction.is_fraud = true;
         
-        // // Store which anomalies were detected
-        // transaction.anomalies = {
-        //   velocity: velocityAnomaly,
-        //   geo: geoAnomaly,
-        //   device: deviceAnomaly
-        // };
+        
         await addTransactionToNeo4j({
           _id: transaction._id,  // Include the _id field
           senderUsername: sender.username,
@@ -255,8 +229,7 @@ export const createTransaction = async (req, res) => {
       }
     } catch (error) {
       console.error("Anomaly detection error:", error);
-      // Don't fail the transaction if anomaly detection fails
-      // Just log the error and continue
+      
     }
     
     return res.status(200).json({
@@ -275,10 +248,6 @@ export const authorizeTransaction = async (req, res) => {
   try {
     const { transactionID } = req.params;
     const {password} = req.body; // expecting raw 6-digit code
-    
-    // if (!password || typeof pin !== 'string' || !/^\d{6}$/.test(password)) {
-    //   return res.status(400).json({ message: "Invalid PIN format. Must be a 6-digit number." });
-    // }
 
     const transaction = await Transaction.findById(transactionID);
     if (!transaction) {
@@ -296,21 +265,19 @@ export const authorizeTransaction = async (req, res) => {
       return res.status(404).json({ message: "User(s) not found" });
     }
 
-    // Compare the raw PIN (stored in sender.transaction_pin)
+    
     if (sender.mpin !== password) {
       transaction.status = 'FAILED';
       await transaction.save();
       return res.status(401).json({ message: "Incorrect PIN" });
     }
 
-    // Check sufficient balance
     if (sender.balance < transaction.transaction_amount) {
       transaction.status = 'FAILED';
       await transaction.save();
       return res.status(400).json({ message: "Insufficient balance" });
     }
 
-    // Update balances
     sender.balance -= transaction.transaction_amount;
     receiver.balance += transaction.transaction_amount;
 

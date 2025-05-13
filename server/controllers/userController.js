@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 import Transaction from '../models/transaction.js';
 import { addUserToNeo4j } from '../neo4jService.js';
-// @desc    Register new user
 export const registerUser = async (req, res) => {
   try {
     const { username, full_name, mpin, gender, pan_card } = req.body;
@@ -11,7 +10,6 @@ export const registerUser = async (req, res) => {
     const existingUser = await User.findOne({ username });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-    // Save user directly (no password hashing since you're using mpin)
     const newUser = new User({ username, full_name, mpin, gender, pan_card });
 
     await addUserToNeo4j(newUser);
@@ -23,7 +21,6 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Login user
 export const loginUser = async (req, res) => {
   try {
     const { username, mpin } = req.body;
@@ -35,7 +32,6 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid MPIN' });
     }
 
-    // ✅ Update latest_login timestamp
     user.latest_login = new Date();
     await user.save();
 
@@ -45,7 +41,7 @@ export const loginUser = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    const { mpin: _, ...userData } = user.toObject(); // Remove mpin from response
+    const { mpin: _, ...userData } = user.toObject(); 
     return res.status(200).json({ user: userData, token });
 
   } catch (err) {
@@ -57,7 +53,6 @@ export const loginUser = async (req, res) => {
 
 
 
-// @desc    Get all users (protected)
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select('-hashed_password');
@@ -78,11 +73,9 @@ export const getUserInfo = async (req, res) => {
 export const getSummary = async (req, res) => {
   try {
     const userid = req.params.userId;
-    // console.log("Requested User ID: ", userid); // log user ID received from the URL
 
     const user = await User.findById(userid);
     if (!user) {
-      // console.log("User not found");
       return res.status(404).json({ message: 'User not found' });
     }
 
@@ -94,7 +87,6 @@ export const getSummary = async (req, res) => {
       createdAt: { $gte: sevenDaysAgo }
     });
 
-    // console.log("Transactions found:", transactions); // log the fetched transactions
 
     let income = 0;
     let expense = 0;
