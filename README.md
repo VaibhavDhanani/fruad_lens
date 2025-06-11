@@ -1,6 +1,6 @@
-# FruadLens - Fraud Detection Platform
+# fraudLens - Fraud Detection Platform
 
-FruadLens is a complete fraud detection platform that includes a FastAPI backend for transaction analysis, a React + Vite frontend for user interactions, an Express server for real-time transaction, and integrated machine learning models for advanced fraud detection.
+fraudLens is a complete fraud detection platform that includes a FastAPI backend for transaction analysis, a React + Vite frontend for user interactions, an Express server for real-time transaction, and integrated machine learning models for advanced fraud detection.
 
 ## 🚀 Project Structure
 
